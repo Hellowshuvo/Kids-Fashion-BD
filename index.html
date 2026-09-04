@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/kids-fashion-bd-logo-black.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kids Fashion BD — Luxury Kids Clothing | Katherpool Shibu Market, Narayanganj</title>
+    <meta name="description" content="Effortless luxury kids clothing blending Parisian elegance and modern streetwear comfort." />
+    <!-- Theme setup: guarantee white background default -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('kfb_theme_mode_v2');
+          if (saved === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.backgroundColor = '#09090B';
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.backgroundColor = '#FFFFFF';
+            document.documentElement.style.colorScheme = 'light';
+            localStorage.setItem('kfb_theme_mode_v2', 'light');
+          }
+        } catch (e) {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.style.backgroundColor = '#FFFFFF';
+        }
+      })();
+    </script>
+    <!-- Google Sans Equivalent: Plus Jakarta Sans & Editorial Serif: Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-white text-neutral-900 antialiased font-sans selection:bg-[#C5A059] selection:text-black transition-colors duration-200">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

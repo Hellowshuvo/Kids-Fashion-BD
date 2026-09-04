@@ -1,0 +1,599 @@
+import React, { useState } from 'react';
+import { useStore } from '../context/StoreContext';
+import confetti from 'canvas-confetti';
+import {
+  X,
+  CreditCard,
+  Banknote,
+  Smartphone,
+  CheckCircle2,
+  Lock,
+  ArrowRight,
+} from 'lucide-react';
+
+export const CheckoutModal = () => {
+  const {
+    isCheckoutOpen,
+    setIsCheckoutOpen,
+    cart,
+    cartSubtotal,
+    discountAmount,
+    shippingFee,
+    grandTotal,
+    formatPrice,
+    appliedPromo,
+    deliveryRegion,
+    setDeliveryRegion,
+    clearCart,
+    setLastOrder,
+    showToast,
+  } = useStore();
+
+  const [step, setStep] = useState(1); // 1: Delivery info, 2: Payment & Review
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Form Fields
+  const [formData, setFormData] = useState({
+    fullName: '',
+    phone: '',
+    email: '',
+    division: 'Dhaka',
+    cityArea: '',
+    streetAddress: '',
+    notes: '',
+    paymentMethod: 'cod', // 'cod', 'bkash', 'card'
+    bkashNumber: '',
+    trxId: '',
+    cardNumber: '',
+    cardExpiry: '',
+    cardCvv: '',
+  });
+
+  if (!isCheckoutOpen) return null;
+
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleNextStep = (e) => {
+    e.preventDefault();
+    if (!formData.fullName.trim()) {
+      showToast('Please enter your full name', 'error');
+      return;
+    }
+    if (!formData.phone.trim() || formData.phone.length < 10) {
+      showToast('Please enter a valid Bangladesh phone number', 'error');
+      return;
+    }
+    if (!formData.streetAddress.trim()) {
+      showToast('Please enter your street address', 'error');
+      return;
+    }
+    setStep(2);
+  };
+
+  const fillSampleTrxId = () => {
+    setFormData((prev) => ({
+      ...prev,
+      bkashNumber: prev.phone || '01712894200',
+      trxId: 'BKL' + Math.floor(10000000 + Math.random() * 90000000),
+    }));
+  };
+
+  const handlePlaceOrder = (e) => {
+    e.preventDefault();
+
+    if (formData.paymentMethod === 'bkash') {
+      if (!formData.trxId || formData.trxId.length < 6) {
+        showToast('Please enter the bKash/Nagad Transaction ID (TrxID)', 'error');
+        return;
+      }
+    }
+
+    setIsSubmitting(true);
+
+    setTimeout(() => {
+      try {
+        confetti({
+          particleCount: 80,
+          spread: 60,
+          origin: { y: 0.6 },
+        });
+      } catch (err) {
+        // Ignored if confetti fails
+      }
+
+      const generatedOrder = {
+        orderId: 'KB-' + Math.floor(100000 + Math.random() * 900000),
+        date: new Date().toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }),
+        customer: {
+          name: formData.fullName,
+          phone: formData.phone,
+          email: formData.email || 'N/A',
+          division: formData.division,
+          cityArea: formData.cityArea,
+          address: formData.streetAddress,
+          notes: formData.notes,
+        },
+        payment: {
+          method:
+            formData.paymentMethod === 'cod'
+              ? 'Cash on Delivery (COD)'
+              : formData.paymentMethod === 'bkash'
+              ? `bKash / Nagad Mobile Banking (TrxID: ${formData.trxId})`
+              : 'Credit / Debit Card',
+          status: formData.paymentMethod === 'cod' ? 'Payment Due upon Delivery' : 'Paid Online',
+        },
+        items: [...cart],
+        subtotal: cartSubtotal,
+        discount: discountAmount,
+        promoCode: appliedPromo?.code || null,
+        shipping: shippingFee,
+        total: grandTotal,
+        estimatedDelivery:
+          deliveryRegion === 'dhaka'
+            ? 'Within 24 to 48 Hours'
+            : 'Within 3 to 5 Business Days',
+      };
+
+      setLastOrder(generatedOrder);
+      clearCart();
+      setIsSubmitting(false);
+      setIsCheckoutOpen(false);
+    }, 1200);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+      
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0"
+        onClick={() => !isSubmitting && setIsCheckoutOpen(false)}
+      />
+
+      {/* Modal Container */}
+      <div className="relative bg-white dark:bg-[#141417] text-neutral-900 dark:text-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-neutral-200 dark:border-[#27272A] z-10 animate-in zoom-in-95 duration-200 text-left">
+        
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-neutral-200 dark:border-[#27272A] flex items-center justify-between bg-white dark:bg-[#141417]">
+          <div className="flex items-center gap-2.5">
+            <Lock className="w-4 h-4 text-[#C5A059]" />
+            <span className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white">
+              Secure Checkout • Kids Fashion BD
+            </span>
+          </div>
+
+          <button
+            onClick={() => setIsCheckoutOpen(false)}
+            disabled={isSubmitting}
+            aria-label="Close checkout"
+            className="p-1.5 text-neutral-400 hover:text-black dark:hover:text-white rounded-lg hover:bg-neutral-100 dark:hover:bg-[#27272A] transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Steps Indicator */}
+        <div className="px-6 py-3 bg-neutral-50 dark:bg-[#09090B] border-b border-neutral-200 dark:border-[#27272A] flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <span
+              className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
+                step >= 1
+                  ? 'bg-neutral-900 text-white dark:bg-[#F5EFEB] dark:text-black'
+                  : 'bg-neutral-200 text-neutral-600 dark:bg-[#27272A] dark:text-neutral-500'
+              }`}
+            >
+              1
+            </span>
+            <span className={`font-medium ${step === 1 ? 'text-neutral-900 dark:text-white' : 'text-neutral-400 dark:text-neutral-500'}`}>
+              Shipping Details
+            </span>
+          </div>
+
+          <div className="w-12 h-px bg-neutral-200 dark:bg-[#27272A]" />
+
+          <div className="flex items-center gap-2">
+            <span
+              className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
+                step === 2
+                  ? 'bg-neutral-900 text-white dark:bg-[#F5EFEB] dark:text-black'
+                  : 'bg-neutral-200 text-neutral-600 dark:bg-[#27272A] dark:text-neutral-500'
+              }`}
+            >
+              2
+            </span>
+            <span className={`font-medium ${step === 2 ? 'text-neutral-900 dark:text-white' : 'text-neutral-400 dark:text-neutral-500'}`}>
+              Payment & Confirm
+            </span>
+          </div>
+        </div>
+
+        <div className="p-6 sm:p-8 max-h-[80vh] overflow-y-auto">
+          
+          {/* STEP 1: Shipping Information */}
+          {step === 1 && (
+            <form onSubmit={handleNextStep} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                {/* Full Name */}
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Tanzeem Farooq"
+                    value={formData.fullName}
+                    onChange={(e) => handleInputChange('fullName', e.target.value)}
+                    className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
+                  />
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                    Phone Number (for Courier Delivery) *
+                  </label>
+                  <div className="flex items-center">
+                    <span className="bg-neutral-200 dark:bg-[#27272A] border border-r-0 border-neutral-200 dark:border-[#27272A] rounded-l-xl px-2.5 py-2.5 text-xs font-mono text-neutral-600 dark:text-neutral-400">
+                      +880
+                    </span>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="01712345678"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-r-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
+                    />
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                {/* Email Address */}
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                    Email Address (Optional)
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="name@example.com"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
+                  />
+                </div>
+
+                {/* Division */}
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                    Division *
+                  </label>
+                  <select
+                    value={formData.division}
+                    onChange={(e) => {
+                      const div = e.target.value;
+                      handleInputChange('division', div);
+                      setDeliveryRegion(div === 'Dhaka' ? 'dhaka' : 'outside');
+                    }}
+                    className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059] transition-all"
+                  >
+                    <option value="Dhaka" className="bg-white dark:bg-[#141417]">Dhaka / Narayanganj (24-48h Delivery)</option>
+                    <option value="Chattogram" className="bg-white dark:bg-[#141417]">Chattogram (3-4 Days)</option>
+                    <option value="Sylhet" className="bg-white dark:bg-[#141417]">Sylhet</option>
+                    <option value="Rajshahi" className="bg-white dark:bg-[#141417]">Rajshahi</option>
+                    <option value="Khulna" className="bg-white dark:bg-[#141417]">Khulna</option>
+                    <option value="Barishal" className="bg-white dark:bg-[#141417]">Barishal</option>
+                    <option value="Rangpur" className="bg-white dark:bg-[#141417]">Rangpur</option>
+                    <option value="Mymensingh" className="bg-white dark:bg-[#141417]">Mymensingh</option>
+                  </select>
+                </div>
+
+              </div>
+
+              {/* Area / Thana */}
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                  City Area / Thana *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Katherpool, Shibu Market, Uttara, Dhanmondi..."
+                  value={formData.cityArea}
+                  onChange={(e) => handleInputChange('cityArea', e.target.value)}
+                  className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
+                />
+              </div>
+
+              {/* Street Address */}
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                  Full Street Address & House / Flat No. *
+                </label>
+                <textarea
+                  rows={2}
+                  required
+                  placeholder="House 24, Road 7, Block D, Apt 4B..."
+                  value={formData.streetAddress}
+                  onChange={(e) => handleInputChange('streetAddress', e.target.value)}
+                  className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
+                />
+              </div>
+
+              {/* Delivery Notes */}
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                  Special Instructions (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Please call before delivery"
+                  value={formData.notes}
+                  onChange={(e) => handleInputChange('notes', e.target.value)}
+                  className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
+                />
+              </div>
+
+              {/* Step 1 Next Button */}
+              <div className="pt-4 flex items-center justify-between border-t border-neutral-200 dark:border-[#27272A]">
+                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                  Total: <strong className="text-neutral-900 dark:text-[#F5EFEB] font-mono text-sm ml-1">{formatPrice(grandTotal)}</strong>
+                </span>
+                <button
+                  type="submit"
+                  className="bg-neutral-900 text-white dark:bg-[#F5EFEB] dark:text-black px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-black dark:hover:bg-white transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                >
+                  <span>Continue to Payment</span>
+                  <ArrowRight className="w-4 h-4 text-white dark:text-black" />
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* STEP 2: Payment & Order Review */}
+          {step === 2 && (
+            <form onSubmit={handlePlaceOrder} className="space-y-6">
+              
+              {/* Payment Methods Selector */}
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+                  Select Payment Method:
+                </label>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  
+                  {/* Cash on Delivery */}
+                  <div
+                    onClick={() => handleInputChange('paymentMethod', 'cod')}
+                    className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                      formData.paymentMethod === 'cod'
+                        ? 'border-[#C5A059] bg-amber-50/50 dark:bg-[#1E1E22] ring-1 ring-[#C5A059]/30'
+                        : 'border-neutral-200 bg-neutral-50 dark:border-[#27272A] dark:bg-[#141417] hover:border-neutral-400 dark:hover:border-neutral-500'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Banknote className="w-4 h-4 text-[#C5A059]" />
+                      <span className="text-xs font-bold text-neutral-900 dark:text-white">Cash on Delivery</span>
+                    </div>
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight">
+                      Pay cash upon delivery to courier in BD
+                    </p>
+                  </div>
+
+                  {/* bKash / Nagad */}
+                  <div
+                    onClick={() => handleInputChange('paymentMethod', 'bkash')}
+                    className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                      formData.paymentMethod === 'bkash'
+                        ? 'border-[#C5A059] bg-pink-50/50 dark:bg-[#1E1E22] ring-1 ring-[#C5A059]/30'
+                        : 'border-neutral-200 bg-neutral-50 dark:border-[#27272A] dark:bg-[#141417] hover:border-neutral-400 dark:hover:border-neutral-500'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Smartphone className="w-4 h-4 text-pink-500" />
+                      <span className="text-xs font-bold text-neutral-900 dark:text-white">bKash / Nagad</span>
+                    </div>
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight">
+                      Mobile wallet payment simulator
+                    </p>
+                  </div>
+
+                  {/* Card Payment */}
+                  <div
+                    onClick={() => handleInputChange('paymentMethod', 'card')}
+                    className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                      formData.paymentMethod === 'card'
+                        ? 'border-[#C5A059] bg-sky-50/50 dark:bg-[#1E1E22] ring-1 ring-[#C5A059]/30'
+                        : 'border-neutral-200 bg-neutral-50 dark:border-[#27272A] dark:bg-[#141417] hover:border-neutral-400 dark:hover:border-neutral-500'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <CreditCard className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />
+                      <span className="text-xs font-bold text-neutral-900 dark:text-white">Debit / Credit Card</span>
+                    </div>
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight">
+                      Visa, Mastercard, AMEX
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* bKash / Nagad Instructions when selected */}
+              {formData.paymentMethod === 'bkash' && (
+                <div className="p-4 bg-neutral-50 dark:bg-[#09090B] border border-neutral-200 dark:border-[#27272A] rounded-2xl space-y-3 animate-in fade-in">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#C5A059]">
+                      bKash / Nagad Merchant Instructions
+                    </span>
+                    <button
+                      type="button"
+                      onClick={fillSampleTrxId}
+                      className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-300 bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] px-2.5 py-1 rounded-md hover:bg-neutral-100 dark:hover:bg-[#27272A] cursor-pointer"
+                    >
+                      Fill Sample TrxID
+                    </button>
+                  </div>
+
+                  <div className="text-xs text-neutral-700 dark:text-neutral-300 space-y-1">
+                    <p>1. Send <strong className="text-neutral-900 dark:text-white font-mono">{formatPrice(grandTotal)}</strong> to Merchant: <strong className="text-[#C5A059]">01712-894200</strong></p>
+                    <p>2. Enter Reference: <strong className="text-neutral-900 dark:text-white">KBD</strong></p>
+                    <p>3. Enter your Transaction ID (TrxID) below to verify instantly:</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-600 dark:text-neutral-400 mb-1">
+                        Your bKash / Nagad Number
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="017XXXXXXXX"
+                        value={formData.bkashNumber}
+                        onChange={(e) => handleInputChange('bkashNumber', e.target.value)}
+                        className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-600 dark:text-neutral-400 mb-1">
+                        Transaction ID (TrxID) *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. BKL82937401"
+                        value={formData.trxId}
+                        onChange={(e) => handleInputChange('trxId', e.target.value.toUpperCase())}
+                        className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs font-mono uppercase text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Card Payment Fields */}
+              {formData.paymentMethod === 'card' && (
+                <div className="p-4 bg-neutral-50 dark:bg-[#09090B] border border-neutral-200 dark:border-[#27272A] rounded-2xl space-y-3 animate-in fade-in">
+                  <div>
+                    <label className="block text-[11px] font-medium text-neutral-600 dark:text-neutral-400 mb-1">
+                      Card Number
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="4123 •••• •••• 9823"
+                      value={formData.cardNumber}
+                      onChange={(e) => handleInputChange('cardNumber', e.target.value)}
+                      className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-600 dark:text-neutral-400 mb-1">
+                        Expiry (MM/YY)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="08/28"
+                        value={formData.cardExpiry}
+                        onChange={(e) => handleInputChange('cardExpiry', e.target.value)}
+                        className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-600 dark:text-neutral-400 mb-1">
+                        CVV / CVC
+                      </label>
+                      <input
+                        type="password"
+                        maxLength={4}
+                        placeholder="•••"
+                        value={formData.cardCvv}
+                        onChange={(e) => handleInputChange('cardCvv', e.target.value)}
+                        className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Order Summary Recap */}
+              <div className="bg-neutral-50 dark:bg-[#09090B] p-4 rounded-2xl border border-neutral-200 dark:border-[#27272A] space-y-2 text-xs">
+                <div className="font-semibold text-neutral-900 dark:text-white mb-1 uppercase tracking-wider text-[11px] font-mono">Order Summary</div>
+                <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
+                  <span>Recipient:</span>
+                  <span className="font-medium text-neutral-900 dark:text-neutral-200">
+                    {formData.fullName} ({formData.phone})
+                  </span>
+                </div>
+                <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
+                  <span>Ship To:</span>
+                  <span className="font-medium text-neutral-900 dark:text-neutral-200 text-right max-w-xs truncate">
+                    {formData.cityArea}, {formData.division}
+                  </span>
+                </div>
+                <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
+                  <span>Items:</span>
+                  <span className="text-neutral-900 dark:text-neutral-200">{cart.length} item(s)</span>
+                </div>
+                <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
+                  <span>Delivery:</span>
+                  <span className="text-neutral-900 dark:text-neutral-200 font-mono">{shippingFee === 0 ? 'FREE' : formatPrice(shippingFee)}</span>
+                </div>
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-[#C5A059] font-medium">
+                    <span>Discount:</span>
+                    <span className="font-mono">-{formatPrice(discountAmount)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm font-bold text-neutral-900 dark:text-white pt-2 border-t border-neutral-200 dark:border-[#27272A]">
+                  <span className="uppercase tracking-wider text-xs">Total Amount:</span>
+                  <span className="font-mono text-base text-neutral-900 dark:text-[#F5EFEB]">{formatPrice(grandTotal)}</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  disabled={isSubmitting}
+                  className="px-5 py-3 rounded-full border border-neutral-300 dark:border-[#27272A] text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white hover:border-neutral-400 transition-colors cursor-pointer"
+                >
+                  ← Back
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-neutral-900 text-white hover:bg-black dark:bg-[#F5EFEB] dark:text-black dark:hover:bg-white py-3.5 px-6 rounded-full text-xs font-bold uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <span>Confirming Order...</span>
+                  ) : (
+                    <>
+                      <span>Place Order ({formatPrice(grandTotal)})</span>
+                      <CheckCircle2 className="w-4 h-4 text-white dark:text-black" />
+                    </>
+                  )}
+                </button>
+              </div>
+
+            </form>
+          )}
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+};

@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: #FFFFFF;
+    color: #09090B;
+  }
+
+  html.dark {
+    background-color: #09090B;
+    color: #FFFFFF;
+  }
+  
+  body {
+    background-color: #FFFFFF;
+    color: #09090B;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.01em;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  html.dark body,
+  body.dark {
+    background-color: #09090B;
+    color: #FFFFFF;
+  }
+
+  ::selection {
+    background-color: #C5A059;
+    color: #000000;
+  }
+
+  /* Sleek modern scrollbar - Light Mode */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F4F4F5;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #D4D4D8;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #A1A1AA;
+  }
+
+  /* Sleek modern scrollbar - Dark Mode */
+  html.dark ::-webkit-scrollbar-track {
+    background: #09090B;
+  }
+  html.dark ::-webkit-scrollbar-thumb {
+    background: #27272A;
+  }
+  html.dark ::-webkit-scrollbar-thumb:hover {
+    background: #3F3F46;
+  }
+
+  /* Better focus-visible ring styles */
+  *:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px rgba(197, 160, 89, 0.6);
+  }
+
+  html.dark *:focus-visible {
+    box-shadow: 0 0 0 2px #09090B, 0 0 0 4px rgba(197, 160, 89, 0.6);
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/80 dark:bg-neutral-900/70 backdrop-blur-md border border-neutral-200 dark:border-neutral-800 shadow-sm;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-[2px] hover:shadow-lg cursor-pointer;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
