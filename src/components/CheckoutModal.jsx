@@ -48,6 +48,7 @@ export const CheckoutModal = () => {
     cardExpiry: '',
     cardCvv: '',
   });
+  const [copiedNumber, setCopiedNumber] = useState(false);
 
   if (!isCheckoutOpen) return null;
 
@@ -70,6 +71,23 @@ export const CheckoutModal = () => {
       return;
     }
     setStep(2);
+  };
+
+  const copyMerchantNumber = () => {
+    try {
+      navigator.clipboard.writeText('01712894200');
+      setCopiedNumber(true);
+      showToast('Merchant number 01712-894200 copied!', 'success');
+      setTimeout(() => setCopiedNumber(false), 2500);
+    } catch (e) {
+      showToast('Merchant number: 01712-894200', 'info');
+    }
+  };
+
+  const handleWhatsAppOrder = () => {
+    const itemsSummary = cart.map(i => `${i.product.name} (${i.size}, ${i.color.name}) x${i.quantity}`).join(', ');
+    const text = encodeURIComponent(`Assalamu Alaikum Kids Fashion BD! I would like to place an order from my phone:\n\n🛍️ Items: ${itemsSummary}\n💰 Total: ৳${grandTotal}\n👤 Name: ${formData.fullName || 'Not provided'}\n📱 Phone: ${formData.phone || 'Not provided'}\n📍 Address: ${formData.streetAddress || ''} ${formData.cityArea || ''} ${formData.division}\n💳 Preferred Payment: ${formData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'bKash/Nagad'}`);
+    window.open(`https://wa.me/8801712894200?text=${text}`, '_blank');
   };
 
   const fillSampleTrxId = () => {
@@ -148,7 +166,7 @@ export const CheckoutModal = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-6 animate-in fade-in duration-200">
       
       {/* Backdrop */}
       <div
@@ -157,11 +175,16 @@ export const CheckoutModal = () => {
       />
 
       {/* Modal Container */}
-      <div className="relative bg-white dark:bg-[#141417] text-neutral-900 dark:text-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-neutral-200 dark:border-[#27272A] z-10 animate-in zoom-in-95 duration-200 text-left">
+      <div className="relative bg-white dark:bg-[#141417] text-neutral-900 dark:text-white rounded-t-3xl sm:rounded-3xl max-w-3xl w-full flex flex-col max-h-[96vh] sm:max-h-[85vh] overflow-hidden shadow-2xl border-t sm:border border-neutral-200 dark:border-[#27272A] z-10 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 text-left">
         
+        {/* Mobile Drag Indicator */}
+        <div className="sm:hidden pt-2.5 pb-1 flex justify-center">
+          <div className="w-10 h-1 bg-neutral-300 dark:bg-neutral-700 rounded-full" />
+        </div>
+
         {/* Header */}
-        <div className="px-6 py-4 border-b border-neutral-200 dark:border-[#27272A] flex items-center justify-between bg-white dark:bg-[#141417]">
-          <div className="flex items-center gap-2.5">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-neutral-200 dark:border-[#27272A] flex items-center justify-between bg-white dark:bg-[#141417]">
+          <div className="flex items-center gap-2">
             <Lock className="w-4 h-4 text-[#C5A059]" />
             <span className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white">
               Secure Checkout • Kids Fashion BD
@@ -179,7 +202,7 @@ export const CheckoutModal = () => {
         </div>
 
         {/* Steps Indicator */}
-        <div className="px-6 py-3 bg-neutral-50 dark:bg-[#09090B] border-b border-neutral-200 dark:border-[#27272A] flex items-center justify-between text-xs">
+        <div className="px-4 sm:px-6 py-2.5 sm:py-3 bg-neutral-50 dark:bg-[#09090B] border-b border-neutral-200 dark:border-[#27272A] flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
@@ -191,7 +214,7 @@ export const CheckoutModal = () => {
               1
             </span>
             <span className={`font-medium ${step === 1 ? 'text-neutral-900 dark:text-white' : 'text-neutral-400 dark:text-neutral-500'}`}>
-              Shipping Details
+              Delivery Details
             </span>
           </div>
 
@@ -213,12 +236,28 @@ export const CheckoutModal = () => {
           </div>
         </div>
 
-        <div className="p-6 sm:p-8 max-h-[80vh] overflow-y-auto">
+        <div className="p-4 sm:p-8 overflow-y-auto flex-1 overscroll-contain">
           
           {/* STEP 1: Shipping Information */}
           {step === 1 && (
             <form onSubmit={handleNextStep} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              
+              {/* Quick WhatsApp Order Callout on Mobile */}
+              <div className="sm:hidden p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between gap-2">
+                <div className="text-xs text-emerald-800 dark:text-emerald-300">
+                  <p className="font-bold">Ordering from phone?</p>
+                  <p className="text-[11px] opacity-90">Skip the form & order via WhatsApp in 1 tap</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleWhatsAppOrder}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl whitespace-nowrap active:scale-95 transition-transform cursor-pointer shadow-xs"
+                >
+                  💬 WhatsApp
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 
                 {/* Full Name */}
                 <div>
@@ -231,7 +270,7 @@ export const CheckoutModal = () => {
                     placeholder="e.g. Tanzeem Farooq"
                     value={formData.fullName}
                     onChange={(e) => handleInputChange('fullName', e.target.value)}
-                    className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
+                    className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-base sm:text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
                   />
                 </div>
 
@@ -246,18 +285,19 @@ export const CheckoutModal = () => {
                     </span>
                     <input
                       type="tel"
+                      inputMode="tel"
                       required
                       placeholder="01712345678"
                       value={formData.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
-                      className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-r-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
+                      className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-r-xl px-3.5 py-2.5 text-base sm:text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
                     />
                   </div>
                 </div>
 
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 
                 {/* Email Address */}
                 <div>
@@ -269,7 +309,7 @@ export const CheckoutModal = () => {
                     placeholder="name@example.com"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
+                    className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-base sm:text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
                   />
                 </div>
 
@@ -285,7 +325,7 @@ export const CheckoutModal = () => {
                       handleInputChange('division', div);
                       setDeliveryRegion(div === 'Dhaka' ? 'dhaka' : 'outside');
                     }}
-                    className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059] transition-all"
+                    className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-base sm:text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059] transition-all"
                   >
                     <option value="Dhaka" className="bg-white dark:bg-[#141417]">Dhaka / Narayanganj (24-48h Delivery)</option>
                     <option value="Chattogram" className="bg-white dark:bg-[#141417]">Chattogram (3-4 Days)</option>
@@ -311,7 +351,7 @@ export const CheckoutModal = () => {
                   placeholder="e.g. Katherpool, Shibu Market, Uttara, Dhanmondi..."
                   value={formData.cityArea}
                   onChange={(e) => handleInputChange('cityArea', e.target.value)}
-                  className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
+                  className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-base sm:text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
                 />
               </div>
 
@@ -326,7 +366,7 @@ export const CheckoutModal = () => {
                   placeholder="House 24, Road 7, Block D, Apt 4B..."
                   value={formData.streetAddress}
                   onChange={(e) => handleInputChange('streetAddress', e.target.value)}
-                  className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
+                  className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-base sm:text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
                 />
               </div>
 
@@ -340,18 +380,18 @@ export const CheckoutModal = () => {
                   placeholder="e.g. Please call before delivery"
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
-                  className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
+                  className="w-full bg-neutral-50 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3.5 py-2.5 text-base sm:text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059] transition-all"
                 />
               </div>
 
               {/* Step 1 Next Button */}
-              <div className="pt-4 flex items-center justify-between border-t border-neutral-200 dark:border-[#27272A]">
+              <div className="pt-4 flex items-center justify-between border-t border-neutral-200 dark:border-[#27272A] pb-[env(safe-area-inset-bottom,0px)]">
                 <span className="text-xs text-neutral-500 dark:text-neutral-400">
                   Total: <strong className="text-neutral-900 dark:text-[#F5EFEB] font-mono text-sm ml-1">{formatPrice(grandTotal)}</strong>
                 </span>
                 <button
                   type="submit"
-                  className="bg-neutral-900 text-white dark:bg-[#F5EFEB] dark:text-black px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-black dark:hover:bg-white transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                  className="bg-neutral-900 text-white dark:bg-[#F5EFEB] dark:text-black px-6 py-3.5 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-black dark:hover:bg-white transition-all flex items-center gap-2 cursor-pointer shadow-md active:scale-98"
                 >
                   <span>Continue to Payment</span>
                   <ArrowRight className="w-4 h-4 text-white dark:text-black" />
@@ -432,21 +472,30 @@ export const CheckoutModal = () => {
               {/* bKash / Nagad Instructions when selected */}
               {formData.paymentMethod === 'bkash' && (
                 <div className="p-4 bg-neutral-50 dark:bg-[#09090B] border border-neutral-200 dark:border-[#27272A] rounded-2xl space-y-3 animate-in fade-in">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
                     <span className="text-xs font-semibold text-[#C5A059]">
                       bKash / Nagad Merchant Instructions
                     </span>
-                    <button
-                      type="button"
-                      onClick={fillSampleTrxId}
-                      className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-300 bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] px-2.5 py-1 rounded-md hover:bg-neutral-100 dark:hover:bg-[#27272A] cursor-pointer"
-                    >
-                      Fill Sample TrxID
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={copyMerchantNumber}
+                        className="text-[11px] font-semibold text-neutral-800 dark:text-neutral-200 bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] px-2.5 py-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-[#27272A] transition-colors cursor-pointer"
+                      >
+                        {copiedNumber ? '✓ Copied Number' : '📋 Copy Number'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={fillSampleTrxId}
+                        className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] px-2 py-1 rounded-lg hover:bg-neutral-200 cursor-pointer"
+                      >
+                        Sample TrxID
+                      </button>
+                    </div>
                   </div>
 
                   <div className="text-xs text-neutral-700 dark:text-neutral-300 space-y-1">
-                    <p>1. Send <strong className="text-neutral-900 dark:text-white font-mono">{formatPrice(grandTotal)}</strong> to Merchant: <strong className="text-[#C5A059]">01712-894200</strong></p>
+                    <p>1. Send <strong className="text-neutral-900 dark:text-white font-mono">{formatPrice(grandTotal)}</strong> to Merchant: <strong className="text-[#C5A059] font-mono">01712-894200</strong></p>
                     <p>2. Enter Reference: <strong className="text-neutral-900 dark:text-white">KBD</strong></p>
                     <p>3. Enter your Transaction ID (TrxID) below to verify instantly:</p>
                   </div>
@@ -458,10 +507,11 @@ export const CheckoutModal = () => {
                       </label>
                       <input
                         type="tel"
+                        inputMode="tel"
                         placeholder="017XXXXXXXX"
                         value={formData.bkashNumber}
                         onChange={(e) => handleInputChange('bkashNumber', e.target.value)}
-                        className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
+                        className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2.5 text-base sm:text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
                       />
                     </div>
                     <div>
@@ -473,7 +523,7 @@ export const CheckoutModal = () => {
                         placeholder="e.g. BKL82937401"
                         value={formData.trxId}
                         onChange={(e) => handleInputChange('trxId', e.target.value.toUpperCase())}
-                        className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs font-mono uppercase text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
+                        className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2.5 text-base sm:text-xs font-mono uppercase text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
                       />
                     </div>
                   </div>
@@ -489,10 +539,11 @@ export const CheckoutModal = () => {
                     </label>
                     <input
                       type="text"
+                      inputMode="numeric"
                       placeholder="4123 •••• •••• 9823"
                       value={formData.cardNumber}
                       onChange={(e) => handleInputChange('cardNumber', e.target.value)}
-                      className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
+                      className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2.5 text-base sm:text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -505,7 +556,7 @@ export const CheckoutModal = () => {
                         placeholder="08/28"
                         value={formData.cardExpiry}
                         onChange={(e) => handleInputChange('cardExpiry', e.target.value)}
-                        className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
+                        className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2.5 text-base sm:text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
                       />
                     </div>
                     <div>
@@ -518,7 +569,7 @@ export const CheckoutModal = () => {
                         placeholder="•••"
                         value={formData.cardCvv}
                         onChange={(e) => handleInputChange('cardCvv', e.target.value)}
-                        className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
+                        className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2.5 text-base sm:text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C5A059]"
                       />
                     </div>
                   </div>
@@ -560,30 +611,41 @@ export const CheckoutModal = () => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="pt-2 flex items-center justify-between gap-3">
+              {/* Action Buttons & Fallback */}
+              <div className="space-y-2.5 pt-1 pb-[env(safe-area-inset-bottom,0px)]">
+                <div className="flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    disabled={isSubmitting}
+                    className="px-5 py-3.5 rounded-full border border-neutral-300 dark:border-[#27272A] text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white hover:border-neutral-400 transition-colors cursor-pointer"
+                  >
+                    ← Back
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 bg-neutral-900 text-white hover:bg-black dark:bg-[#F5EFEB] dark:text-black dark:hover:bg-white py-3.5 px-6 rounded-full text-xs font-bold uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-98"
+                  >
+                    {isSubmitting ? (
+                      <span>Confirming Order...</span>
+                    ) : (
+                      <>
+                        <span>Place Order ({formatPrice(grandTotal)})</span>
+                        <CheckCircle2 className="w-4 h-4 text-white dark:text-black" />
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Direct WhatsApp confirmation option */}
                 <button
                   type="button"
-                  onClick={() => setStep(1)}
-                  disabled={isSubmitting}
-                  className="px-5 py-3 rounded-full border border-neutral-300 dark:border-[#27272A] text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white hover:border-neutral-400 transition-colors cursor-pointer"
+                  onClick={handleWhatsAppOrder}
+                  className="w-full py-2.5 rounded-full border border-emerald-500/40 bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors cursor-pointer"
                 >
-                  ← Back
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 bg-neutral-900 text-white hover:bg-black dark:bg-[#F5EFEB] dark:text-black dark:hover:bg-white py-3.5 px-6 rounded-full text-xs font-bold uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                >
-                  {isSubmitting ? (
-                    <span>Confirming Order...</span>
-                  ) : (
-                    <>
-                      <span>Place Order ({formatPrice(grandTotal)})</span>
-                      <CheckCircle2 className="w-4 h-4 text-white dark:text-black" />
-                    </>
-                  )}
+                  <span>💬 Or Confirm via WhatsApp</span>
                 </button>
               </div>
 

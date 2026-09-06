@@ -15,7 +15,6 @@ const getBadgeStyles = (badge) => {
 export const ProductCard = ({ product, style }) => {
   const {
     formatPrice,
-    addToCart,
     toggleWishlist,
     isInWishlist,
     setActiveQuickView,
@@ -35,7 +34,7 @@ export const ProductCard = ({ product, style }) => {
   return (
     <div 
       style={style}
-      className="group text-left flex flex-col justify-between rounded-2xl border border-neutral-200 dark:border-neutral-800/80 hover:border-neutral-400 dark:hover:border-neutral-600 bg-white dark:bg-[#141417] p-3 hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-black/60 transition-all duration-300 ease-out"
+      className="group text-left flex flex-col justify-between rounded-2xl border border-neutral-200 dark:border-neutral-800/80 hover:border-neutral-400 dark:hover:border-neutral-600 bg-white dark:bg-[#141417] p-2 sm:p-3 hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-black/60 transition-all duration-300 ease-out"
     >
       
       {/* 3:4 Aspect Ratio Fashion Image with Rounded Corners */}
@@ -61,7 +60,7 @@ export const ProductCard = ({ product, style }) => {
         {/* Sold Out Overlay */}
         {product.inStock === false && (
           <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center z-10">
-            <span className="bg-neutral-900 text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full border border-neutral-700">
+            <span className="bg-neutral-900 text-white text-xs font-bold uppercase tracking-widest px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-neutral-700">
               Sold Out
             </span>
           </div>
@@ -69,52 +68,49 @@ export const ProductCard = ({ product, style }) => {
 
         {/* Badge */}
         {product.badge && product.inStock !== false && (
-          <span className={`absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-xs border backdrop-blur-md ${getBadgeStyles(product.badge)}`}>
+          <span className={`absolute top-2 left-2 sm:top-3 sm:left-3 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-xs border backdrop-blur-md ${getBadgeStyles(product.badge)}`}>
             {product.badge}
           </span>
         )}
 
-        {/* Wishlist Button */}
+        {/* Wishlist Button with comfortable touch target */}
         <button
           onClick={handleWishlistClick}
           aria-label={isWishlisted ? "Remove from wishlist" : "Save to wishlist"}
-          className={`absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm z-20 ${
+          className={`absolute top-2 right-2 sm:top-3 sm:right-3 w-8 h-8 sm:w-7 sm:h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm z-20 ${
             isWishlisted
               ? 'bg-[#C5A059] text-black'
-              : 'bg-white/80 dark:bg-black/60 text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white border border-neutral-200 dark:border-white/10 hover:bg-white dark:hover:bg-black'
-          } ${isWishlistAnimating ? 'scale-75' : 'scale-100 hover:scale-110'}`}
+              : 'bg-white/85 dark:bg-black/70 text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white border border-neutral-200 dark:border-white/10 hover:bg-white dark:hover:bg-black'
+          } ${isWishlistAnimating ? 'scale-75' : 'scale-100 active:scale-90'}`}
         >
-          <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-current' : ''}`} />
+          <Heart className={`w-3.5 h-3.5 sm:w-3 sm:h-3 ${isWishlisted ? 'fill-current' : ''}`} />
         </button>
 
-        {/* Quick Add Bar sliding from bottom */}
+        {/* Quick Add Bar for desktop */}
         <div className="absolute inset-x-3 bottom-3 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out hidden sm:block z-20">
           <button
             onClick={(e) => {
               e.stopPropagation();
-              if (product.inStock !== false) {
-                addToCart(product, product.sizes[0], product.colors[0], 1);
-              }
+              setActiveQuickView(product);
             }}
             disabled={product.inStock === false}
             className="w-full bg-neutral-900 hover:bg-black text-white dark:bg-[#F5EFEB] dark:hover:bg-white dark:text-[#09090B] py-2.5 rounded-xl text-xs font-bold tracking-wide uppercase transition-all cursor-pointer shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>{product.inStock === false ? 'Out of Stock' : 'Quick Add'}</span>
+            <span>{product.inStock === false ? 'Out of Stock' : 'Select Size'}</span>
           </button>
         </div>
       </div>
 
       {/* Garment Details & Pricing */}
-      <div className="pt-3 pb-1 px-1 flex flex-col justify-between flex-1">
+      <div className="pt-2 sm:pt-3 pb-1 px-0.5 sm:px-1 flex flex-col justify-between flex-1">
         <div>
           {/* Department & Age Tag */}
-          <div className="flex items-center justify-between text-[11px] text-neutral-500 dark:text-neutral-400 font-medium mb-1">
-            <span>{product.category}</span>
-            <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 font-medium mb-1">
+            <span className="truncate">{product.category}</span>
+            <div className="flex items-center gap-1 shrink-0">
               <Star className="w-3 h-3 fill-[#C5A059] text-[#C5A059]" />
               <span className="text-neutral-800 dark:text-neutral-300 font-semibold">{product.rating || '4.9'}</span>
-              <span className="text-neutral-400 dark:text-neutral-500">({product.reviewsCount || 24})</span>
             </div>
           </div>
 
@@ -128,7 +124,7 @@ export const ProductCard = ({ product, style }) => {
           </h3>
 
           {/* Colors Dots & Sizes */}
-          <div className="flex items-center justify-between mt-1.5">
+          <div className="flex items-center justify-between mt-1 sm:mt-1.5">
             <div className="flex items-center gap-1">
               {product.colors && product.colors.slice(0, 3).map((color, idx) => (
                 <div
@@ -139,7 +135,7 @@ export const ProductCard = ({ product, style }) => {
                 />
               ))}
               {product.colors && product.colors.length > 3 && (
-                <span className="text-[10px] text-neutral-500 ml-0.5 font-medium">
+                <span className="text-[9px] text-neutral-500 ml-0.5 font-medium">
                   +{product.colors.length - 3}
                 </span>
               )}
@@ -152,25 +148,27 @@ export const ProductCard = ({ product, style }) => {
         </div>
 
         {/* Price & Mobile Add */}
-        <div className="pt-2 mt-2 border-t border-neutral-200 dark:border-neutral-800/80 flex items-center justify-between">
-          <div className="flex items-baseline gap-2">
+        <div className="pt-2 mt-1.5 sm:mt-2 border-t border-neutral-200 dark:border-neutral-800/80 flex items-center justify-between gap-1">
+          <div className="flex items-baseline gap-1.5 flex-wrap">
             <span className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-[#F5EFEB]">
               {formatPrice(product.price)}
             </span>
             {product.originalPrice && (
-              <span className="text-[11px] text-neutral-400 dark:text-neutral-500 line-through font-medium">
+              <span className="text-[10px] sm:text-[11px] text-neutral-400 dark:text-neutral-500 line-through font-medium">
                 {formatPrice(product.originalPrice)}
               </span>
             )}
           </div>
 
+          {/* Mobile Tap-to-Order Action */}
           <button
-            onClick={() => product.inStock !== false && addToCart(product, product.sizes[0], product.colors[0], 1)}
-            aria-label="Add to cart"
+            onClick={() => setActiveQuickView(product)}
+            aria-label="Select size & add"
             disabled={product.inStock === false}
-            className="sm:hidden bg-neutral-900 text-white dark:bg-[#F5EFEB] dark:text-[#09090B] p-1.5 rounded-lg hover:opacity-90 transition-colors cursor-pointer shadow-md disabled:opacity-50"
+            className="sm:hidden bg-neutral-900 text-white dark:bg-[#F5EFEB] dark:text-[#09090B] px-2.5 py-1.5 rounded-lg text-[11px] font-bold tracking-wider uppercase flex items-center gap-1 active:scale-95 transition-transform shadow-xs disabled:opacity-50"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3 h-3" />
+            <span>Add</span>
           </button>
         </div>
 

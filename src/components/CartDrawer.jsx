@@ -57,8 +57,8 @@ export const CartDrawer = () => {
         onClick={() => setIsCartOpen(false)}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white dark:bg-[#141417] text-neutral-900 dark:text-white shadow-2xl flex flex-col justify-between border-l border-neutral-200 dark:border-[#27272A] animate-in slide-in-from-right duration-300">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10 w-full sm:w-auto">
+        <div className="w-full sm:w-screen sm:max-w-md bg-white dark:bg-[#141417] text-neutral-900 dark:text-white shadow-2xl flex flex-col justify-between border-l border-neutral-200 dark:border-[#27272A] animate-in slide-in-from-right duration-300">
           
           {/* Header */}
           <div className="p-5 border-b border-neutral-200 dark:border-[#27272A] flex items-center justify-between">
@@ -172,19 +172,21 @@ export const CartDrawer = () => {
 
                     {/* Quantity & Item Subtotal */}
                     <div className="flex items-center justify-between pt-2">
-                      <div className="inline-flex items-center border border-neutral-200 dark:border-[#27272A] rounded-lg bg-neutral-100 dark:bg-[#1E1E22] p-0.5">
+                      <div className="inline-flex items-center border border-neutral-200 dark:border-[#27272A] rounded-xl bg-neutral-100 dark:bg-[#1E1E22] p-0.5">
                         <button
                           onClick={() => updateCartQuantity(item.cartItemId, item.quantity - 1)}
-                          className="w-6 h-6 rounded bg-white dark:bg-[#27272A] flex items-center justify-center text-xs font-bold text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer shadow-xs"
+                          className="w-7 h-7 sm:w-6 sm:h-6 rounded-lg bg-white dark:bg-[#27272A] flex items-center justify-center text-sm font-bold text-neutral-900 dark:text-white active:bg-neutral-200 dark:active:bg-neutral-700 transition-colors cursor-pointer shadow-xs"
+                          aria-label="Decrease quantity"
                         >
                           -
                         </button>
-                        <span className="w-7 text-center text-xs font-semibold text-neutral-900 dark:text-white font-mono">
+                        <span className="w-8 text-center text-xs font-semibold text-neutral-900 dark:text-white font-mono">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => updateCartQuantity(item.cartItemId, item.quantity + 1)}
-                          className="w-6 h-6 rounded bg-white dark:bg-[#27272A] flex items-center justify-center text-xs font-bold text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer shadow-xs"
+                          className="w-7 h-7 sm:w-6 sm:h-6 rounded-lg bg-white dark:bg-[#27272A] flex items-center justify-center text-sm font-bold text-neutral-900 dark:text-white active:bg-neutral-200 dark:active:bg-neutral-700 transition-colors cursor-pointer shadow-xs"
+                          aria-label="Increase quantity"
                         >
                           +
                         </button>
@@ -297,13 +299,13 @@ export const CartDrawer = () => {
                   setIsCartOpen(false);
                   setIsCheckoutOpen(true);
                 }}
-                className="w-full bg-neutral-900 hover:bg-black text-white dark:bg-[#F5EFEB] dark:hover:bg-white dark:text-black py-3.5 px-4 rounded-full text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 group active:scale-[0.99] cursor-pointer shadow-lg"
+                className="w-full bg-neutral-900 hover:bg-black text-white dark:bg-[#F5EFEB] dark:hover:bg-white dark:text-black py-4 px-4 rounded-full text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 group active:scale-[0.99] cursor-pointer shadow-lg"
               >
                 <span>Proceed to Checkout</span>
                 <ArrowRight className="w-4 h-4 text-white dark:text-black group-hover:translate-x-1 transition-transform" />
               </button>
 
-              <p className="text-[10px] text-center text-neutral-400 dark:text-neutral-500">
+              <p className="text-[10px] text-center text-neutral-400 dark:text-neutral-500 pb-[env(safe-area-inset-bottom,0px)]">
                 Cash on Delivery, bKash, Nagad & Cards accepted across Bangladesh
               </p>
 

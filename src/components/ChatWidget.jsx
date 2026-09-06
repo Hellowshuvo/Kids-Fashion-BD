@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageSquare, X, Send, Phone, Clock, Sparkles } from 'lucide-react';
+import { X, Send, Phone, Clock } from 'lucide-react';
 
 export const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,13 +36,13 @@ export const ChatWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-40">
+    <div className="fixed bottom-20 right-3 sm:bottom-6 sm:right-6 z-40">
       {/* Pop-up Chat Window */}
       {isOpen && (
-        <div className="mb-3 w-80 sm:w-96 bg-white dark:bg-[#141417] text-neutral-900 dark:text-white rounded-2xl shadow-2xl border border-neutral-200 dark:border-[#27272A] overflow-hidden animate-in zoom-in-95 duration-200 text-left">
+        <div className="mb-3 w-[calc(100vw-1.5rem)] sm:w-96 max-w-sm bg-white dark:bg-[#141417] text-neutral-900 dark:text-white rounded-2xl shadow-2xl border border-neutral-200 dark:border-[#27272A] overflow-hidden animate-in zoom-in-95 duration-200 text-left">
           
           {/* Top header */}
-          <div className="bg-neutral-900 text-white dark:bg-[#09090B] p-4 flex items-center justify-between border-b border-neutral-800 dark:border-[#27272A]">
+          <div className="bg-neutral-900 text-white dark:bg-[#09090B] p-3.5 sm:p-4 flex items-center justify-between border-b border-neutral-800 dark:border-[#27272A]">
             <div className="flex items-center gap-2.5">
               <div className="relative">
                 <div className="w-8 h-8 rounded-full bg-neutral-800 dark:bg-[#1E1E22] border border-[#C5A059]/40 flex items-center justify-center text-xs font-serif font-bold text-[#C5A059]">
@@ -59,25 +59,35 @@ export const ChatWidget = () => {
             <button
               onClick={() => setIsOpen(false)}
               aria-label="Close chat"
-              className="text-neutral-400 hover:text-white p-1 rounded-lg hover:bg-neutral-800 dark:hover:bg-[#27272A] transition-colors cursor-pointer"
+              className="text-neutral-400 hover:text-white p-1.5 rounded-lg hover:bg-neutral-800 dark:hover:bg-[#27272A] transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Quick info banner */}
+          {/* Quick info banner with WhatsApp & Call */}
           <div className="bg-neutral-100 dark:bg-[#1E1E22] px-3.5 py-2 border-b border-neutral-200 dark:border-[#27272A] flex items-center justify-between text-[11px] text-neutral-700 dark:text-neutral-300">
-            <span className="flex items-center gap-1.5 font-medium">
-              <Clock className="w-3 h-3 text-[#C5A059]" />
-              Narayanganj Studio: 10AM - 8PM
+            <span className="flex items-center gap-1.5 font-medium truncate">
+              <Clock className="w-3 h-3 text-[#C5A059] shrink-0" />
+              <span className="truncate">Narayanganj 10AM-8PM</span>
             </span>
-            <a
-              href="tel:+8801712894200"
-              className="text-[#C5A059] hover:underline flex items-center gap-1 font-semibold"
-            >
-              <Phone className="w-2.5 h-2.5" />
-              Call
-            </a>
+            <div className="flex items-center gap-3 shrink-0">
+              <a
+                href="https://wa.me/8801712894200"
+                target="_blank"
+                rel="noreferrer"
+                className="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold flex items-center gap-1"
+              >
+                <span>WhatsApp</span>
+              </a>
+              <a
+                href="tel:+8801712894200"
+                className="text-[#C5A059] hover:underline flex items-center gap-1 font-semibold"
+              >
+                <Phone className="w-2.5 h-2.5" />
+                <span>Call</span>
+              </a>
+            </div>
           </div>
 
           {/* Messages list */}
@@ -126,7 +136,7 @@ export const ChatWidget = () => {
               placeholder="Type your message..."
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
-              className="flex-1 text-xs bg-neutral-100 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3 py-2 text-neutral-900 dark:text-white outline-none focus:border-[#C5A059] transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+              className="flex-1 text-base sm:text-xs bg-neutral-100 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3 py-2 text-neutral-900 dark:text-white outline-none focus:border-[#C5A059] transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
             />
             <button
               type="submit"

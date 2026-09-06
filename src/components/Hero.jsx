@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { ArrowRight, Sparkles, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import { Sparkles, ShieldCheck, Truck } from 'lucide-react';
 
 export const Hero = () => {
   const { setSelectedCategory, theme } = useStore();
@@ -35,48 +35,48 @@ export const Hero = () => {
             </div>
 
             {/* Kids Fashion BD brand logo in the custom chunky cutout font */}
-            <div className="py-1">
+            <div className="py-0 sm:py-1">
               <h1 className="sr-only">Kids Fashion BD</h1>
               {isDark ? (
                 /* Dark mode: crisp white cutout letters */
                 <img
                   src="/kids-fashion-bd-logo-white.png"
                   alt="Kids Fashion BD"
-                  className="h-28 sm:h-36 md:h-44 lg:h-52 w-auto object-contain select-none filter drop-shadow-2xl hover:scale-[1.01] transition-transform duration-300 block"
+                  className="h-20 sm:h-32 md:h-44 lg:h-52 w-auto object-contain select-none filter drop-shadow-2xl hover:scale-[1.01] transition-transform duration-300 block"
                 />
               ) : (
                 /* Light mode: crisp black cutout letters */
                 <img
                   src="/kids-fashion-bd-logo-black.png"
                   alt="Kids Fashion BD"
-                  className="h-28 sm:h-36 md:h-44 lg:h-52 w-auto object-contain select-none filter drop-shadow-md hover:scale-[1.01] transition-transform duration-300 block"
+                  className="h-20 sm:h-32 md:h-44 lg:h-52 w-auto object-contain select-none filter drop-shadow-md hover:scale-[1.01] transition-transform duration-300 block"
                 />
               )}
             </div>
 
             {/* Description Text */}
-            <p className={`text-sm sm:text-base leading-relaxed font-normal max-w-md ${
+            <p className={`text-xs sm:text-base leading-relaxed font-normal max-w-md ${
               isDark ? 'text-neutral-400' : 'text-neutral-600'
             }`}>
               Your neighborhood luxury atelier for pure organic essentials. 100% GOTS certified combed cotton, breathable washed linens, and timeless moments worth sharing.
             </p>
 
-            {/* Pill Buttons (Primary + Outline Secondary, matching reference) */}
-            <div className="pt-6 sm:pt-8 flex flex-wrap items-center gap-3 sm:gap-4">
+            {/* Pill Buttons (Primary + Outline Secondary) */}
+            <div className="pt-2 sm:pt-4 flex flex-wrap items-center gap-2.5 sm:gap-4">
               <button
                 onClick={() => handleExplore('all')}
-                className={`px-8 py-3.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-200 cursor-pointer shadow-lg hover:scale-[1.02] ${
+                className={`flex-1 sm:flex-none px-6 sm:px-8 py-3 sm:py-3.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-200 cursor-pointer shadow-lg hover:scale-[1.02] text-center ${
                   isDark
                     ? 'bg-[#F5EFEB] hover:bg-white text-[#09090B]'
                     : 'bg-neutral-900 hover:bg-black text-white'
                 }`}
               >
-                EXPLORE COLLECTION
+                EXPLORE NOW
               </button>
 
               <button
                 onClick={() => handleExplore('Festive')}
-                className={`px-7 py-3.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-200 cursor-pointer ${
+                className={`flex-1 sm:flex-none px-5 sm:px-7 py-3 sm:py-3.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-200 cursor-pointer text-center ${
                   isDark
                     ? 'border border-neutral-700 hover:border-white text-white hover:bg-white/5'
                     : 'border border-neutral-300 hover:border-black text-neutral-900 hover:bg-neutral-100'
@@ -84,6 +84,22 @@ export const Hero = () => {
               >
                 EID CAPSULE
               </button>
+            </div>
+
+            {/* Mobile Trust Badges */}
+            <div className="pt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">
+              <span className="flex items-center gap-1.5">
+                <Truck className="w-3.5 h-3.5 text-[#C5A059]" />
+                <span>24-48h Delivery</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#C5A059]" />
+                <span>Cash on Delivery</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+                <span>100% GOTS Cotton</span>
+              </span>
             </div>
 
 

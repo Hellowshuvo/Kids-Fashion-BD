@@ -17,8 +17,13 @@ export const OrderSuccessModal = () => {
     window.print();
   };
 
+  const handleWhatsAppHelp = () => {
+    const text = encodeURIComponent(`Assalamu Alaikum Kids Fashion BD! I placed order #${lastOrder.orderId} (${formatPrice(lastOrder.total)}). Could you please confirm delivery details?`);
+    window.open(`https://wa.me/8801712894200?text=${text}`, '_blank');
+  };
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-6 animate-in fade-in duration-200">
       
       {/* Backdrop */}
       <div
@@ -27,13 +32,18 @@ export const OrderSuccessModal = () => {
       />
 
       {/* Modal Card */}
-      <div className="relative bg-white dark:bg-[#141417] text-neutral-900 dark:text-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-neutral-200 dark:border-[#27272A] z-10 animate-in zoom-in-95 duration-200 text-left">
+      <div className="relative bg-white dark:bg-[#141417] text-neutral-900 dark:text-white rounded-t-3xl sm:rounded-3xl max-w-2xl w-full flex flex-col max-h-[95vh] sm:max-h-[85vh] overflow-hidden shadow-2xl border-t sm:border border-neutral-200 dark:border-[#27272A] z-10 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 text-left">
         
+        {/* Mobile Pull Bar */}
+        <div className="sm:hidden pt-2.5 pb-1 flex justify-center">
+          <div className="w-10 h-1 bg-neutral-300 dark:bg-neutral-700 rounded-full" />
+        </div>
+
         {/* Top celebratory header */}
-        <div className="bg-neutral-50 dark:bg-[#09090B] p-6 sm:p-8 text-center border-b border-neutral-200 dark:border-[#27272A] relative">
+        <div className="bg-neutral-50 dark:bg-[#09090B] p-5 sm:p-8 text-center border-b border-neutral-200 dark:border-[#27272A] relative">
           <button
             onClick={() => setLastOrder(null)}
-            className="absolute top-4 right-4 p-1.5 text-neutral-400 hover:text-black dark:hover:text-white rounded-lg hover:bg-neutral-100 dark:hover:bg-[#27272A] transition-colors cursor-pointer"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 text-neutral-400 hover:text-black dark:hover:text-white rounded-lg hover:bg-neutral-100 dark:hover:bg-[#27272A] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -142,7 +152,14 @@ export const OrderSuccessModal = () => {
           </div>
 
           {/* Action buttons */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
+          <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5 pb-[env(safe-area-inset-bottom,0px)]">
+            <button
+              onClick={handleWhatsAppHelp}
+              className="w-full sm:w-auto px-5 py-3 rounded-full border border-emerald-500/40 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors cursor-pointer"
+            >
+              <span>💬 Track via WhatsApp</span>
+            </button>
+
             <button
               onClick={handlePrint}
               className="w-full sm:w-auto px-5 py-3 rounded-full border border-neutral-300 dark:border-[#27272A] text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#1E1E22] hover:text-black dark:hover:text-white flex items-center justify-center gap-2 transition-colors cursor-pointer"
@@ -153,7 +170,7 @@ export const OrderSuccessModal = () => {
 
             <button
               onClick={() => setLastOrder(null)}
-              className="flex-1 w-full bg-neutral-900 text-white hover:bg-black dark:bg-[#F5EFEB] dark:text-black dark:hover:bg-white py-3.5 px-6 rounded-full text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+              className="flex-1 w-full bg-neutral-900 text-white hover:bg-black dark:bg-[#F5EFEB] dark:text-black dark:hover:bg-white py-3.5 px-6 rounded-full text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98"
             >
               <ShoppingBag className="w-4 h-4 text-white dark:text-black" />
               <span>Continue Shopping</span>

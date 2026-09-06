@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useStore } from '../context/StoreContext';
 import { MapPin, Phone, Mail, ArrowUp } from 'lucide-react';
 

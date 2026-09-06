@@ -18,14 +18,15 @@ export const ProductGrid = () => {
 
   const isDark = theme === 'dark';
 
-  const [gridCols, setGridCols] = useState(4); // 2, 3, or 4
+  const [gridCols, setGridCols] = useState(4); // 2, 3, or 4 for desktop
+  const [mobileCols, setMobileCols] = useState(2); // 1 or 2 for mobile
 
   const categories = [
     { id: 'all', label: 'All Items', count: PRODUCTS.length },
-    { id: 'Baby & Toddler', label: 'Baby (0–2Y)', count: PRODUCTS.filter(p => p.category === 'Baby & Toddler').length },
-    { id: 'Girls', label: 'Girls (2–8Y)', count: PRODUCTS.filter(p => p.category === 'Girls').length },
-    { id: 'Boys', label: 'Boys (2–8Y)', count: PRODUCTS.filter(p => p.category === 'Boys').length },
-    { id: 'Festive', label: 'Eid & Festive', count: PRODUCTS.filter(p => p.category === 'Festive').length },
+    { id: 'Baby & Toddler', label: 'Baby (0–2Y)', count: PRODUCTS.filter(p => p.category === 'Baby & Toddler' || p.categories?.includes('Baby & Toddler')).length },
+    { id: 'Girls', label: 'Girls (2–8Y)', count: PRODUCTS.filter(p => p.category === 'Girls' || p.categories?.includes('Girls')).length },
+    { id: 'Boys', label: 'Boys (2–8Y)', count: PRODUCTS.filter(p => p.category === 'Boys' || p.categories?.includes('Boys')).length },
+    { id: 'Festive', label: 'Eid & Festive', count: PRODUCTS.filter(p => p.category === 'Festive' || p.categories?.includes('Festive')).length },
   ];
 
   const categoryDescriptions = {
@@ -45,13 +46,14 @@ export const ProductGrid = () => {
   const hasFilter = selectedCategory !== 'all' || selectedSort !== 'featured' || Boolean(searchQuery);
 
   const getGridClass = () => {
-    if (gridCols === 4) return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
-    if (gridCols === 3) return 'grid-cols-2 lg:grid-cols-3';
-    return 'grid-cols-1 sm:grid-cols-2';
+    const mobileClass = mobileCols === 1 ? 'grid-cols-1' : 'grid-cols-2';
+    if (gridCols === 4) return `${mobileClass} sm:grid-cols-3 lg:grid-cols-4`;
+    if (gridCols === 3) return `${mobileClass} sm:grid-cols-2 lg:grid-cols-3`;
+    return `${mobileClass} sm:grid-cols-2`;
   };
 
   return (
-    <section id="catalog" className={`py-10 sm:py-14 border-b scroll-mt-16 text-left relative overflow-hidden transition-colors duration-200 ${
+    <section id="catalog" className={`py-6 sm:py-14 border-b scroll-mt-16 text-left relative overflow-hidden transition-colors duration-200 ${
       isDark ? 'bg-[#09090B] border-neutral-800/80 text-white' : 'bg-white border-neutral-200 text-neutral-900'
     }`}>
       
@@ -63,18 +65,18 @@ export const ProductGrid = () => {
         }
       `}} />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="flex flex-col xl:flex-row xl:items-end justify-between mb-8 pb-4 border-b border-neutral-200 dark:border-neutral-800/80 gap-4">
+        <div className="flex flex-col xl:flex-row xl:items-end justify-between mb-5 sm:mb-8 pb-3 sm:pb-4 border-b border-neutral-200 dark:border-neutral-800/80 gap-3 sm:gap-4">
           <div className="max-w-3xl">
-            <div className="flex items-center gap-2.5 mb-2">
-              <span className="w-6 h-[1.5px] bg-[#C5A059] rounded-full"></span>
+            <div className="flex items-center gap-2 mb-1 sm:mb-2">
+              <span className="w-5 sm:w-6 h-[1.5px] bg-[#C5A059] rounded-full"></span>
               <span className="text-[10px] sm:text-[11px] font-semibold tracking-[0.22em] uppercase text-[#C5A059] font-mono">
                 Curated Drops
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-neutral-900 dark:text-white mb-2">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-neutral-900 dark:text-white mb-1 sm:mb-2">
               {categories.find(c => c.id === selectedCategory)?.label || 'All Items'}
             </h2>
             <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-2xl font-normal">
@@ -83,39 +85,67 @@ export const ProductGrid = () => {
           </div>
 
           {/* Filter, Sort & View Toggles */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 xl:pb-1">
+          <div className="flex flex-wrap items-center justify-between sm:justify-start gap-2 sm:gap-3 xl:pb-1">
             
-            {/* Product Count */}
-            <div className="text-xs font-bold text-neutral-500 uppercase tracking-wider hidden md:block mr-2 font-mono">
-              Showing {filteredProducts.length} garments
+            {/* Product Count (Visible on mobile & desktop) */}
+            <div className="text-[11px] sm:text-xs font-bold text-neutral-500 uppercase tracking-wider font-mono">
+              {filteredProducts.length} garments
             </div>
 
             {hasFilter && (
               <button
                 onClick={resetFilters}
-                className="text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-[#C5A059] flex items-center gap-1.5 cursor-pointer font-bold text-xs uppercase tracking-wider transition-colors px-2 py-2"
+                className="text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-[#C5A059] flex items-center gap-1 cursor-pointer font-bold text-xs uppercase tracking-wider transition-colors px-2 py-1"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset</span>
               </button>
             )}
 
-            <div className="flex items-center bg-neutral-100 dark:bg-[#141417] border border-neutral-200 dark:border-neutral-800 rounded-full p-1 shadow-xs">
-              <div className="flex items-center px-3 gap-2 border-r border-neutral-200 dark:border-neutral-800">
+            <div className="flex items-center bg-neutral-100 dark:bg-[#141417] border border-neutral-200 dark:border-neutral-800 rounded-full p-0.5 sm:p-1 shadow-xs ml-auto sm:ml-0">
+              <div className="flex items-center px-2.5 sm:px-3 gap-1.5 sm:gap-2 border-r border-neutral-200 dark:border-neutral-800">
                 <span className="text-[10px] uppercase text-neutral-500 font-bold tracking-widest hidden sm:inline-block">Sort</span>
                 <select
                   value={selectedSort}
                   onChange={(e) => setSelectedSort(e.target.value)}
-                  className="bg-transparent text-neutral-800 dark:text-neutral-200 text-xs font-medium focus:outline-none cursor-pointer pr-1"
+                  className="bg-transparent text-neutral-800 dark:text-neutral-200 text-xs font-medium focus:outline-none cursor-pointer pr-1 py-1"
                 >
-                  <option value="featured" className="bg-white dark:bg-[#141417] text-neutral-900 dark:text-white">Featured Atelier</option>
+                  <option value="featured" className="bg-white dark:bg-[#141417] text-neutral-900 dark:text-white">Featured</option>
                   <option value="price-low" className="bg-white dark:bg-[#141417] text-neutral-900 dark:text-white">Price: Low to High</option>
                   <option value="price-high" className="bg-white dark:bg-[#141417] text-neutral-900 dark:text-white">Price: High to Low</option>
                   <option value="rating" className="bg-white dark:bg-[#141417] text-neutral-900 dark:text-white">Top Rated</option>
                 </select>
               </div>
 
-              {/* View Grid Switcher */}
+              {/* Mobile 1-col vs 2-col View Switcher */}
+              <div className="flex sm:hidden items-center pl-1 pr-0.5 gap-0.5">
+                <button
+                  onClick={() => setMobileCols(1)}
+                  aria-label="1 Column Large View"
+                  className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                    mobileCols === 1
+                      ? 'bg-white text-black shadow-xs dark:bg-[#27272A] dark:text-white'
+                      : 'text-neutral-400 hover:text-black dark:text-neutral-500 dark:hover:text-white'
+                  }`}
+                  title="Single card view"
+                >
+                  <RectangleHorizontal className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => setMobileCols(2)}
+                  aria-label="2 Columns Grid View"
+                  className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                    mobileCols === 2
+                      ? 'bg-white text-black shadow-xs dark:bg-[#27272A] dark:text-white'
+                      : 'text-neutral-400 hover:text-black dark:text-neutral-500 dark:hover:text-white'
+                  }`}
+                  title="2-column grid view"
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Desktop View Grid Switcher */}
               <div className="hidden sm:flex items-center pl-1 pr-0.5 gap-0.5">
                 <button
                   onClick={() => setGridCols(2)}

@@ -28,7 +28,7 @@ export const StoreProvider = ({ children }) => {
   const [currency, setCurrency] = useState('BDT');
   const USD_RATE = 120; // 1 USD = 120 BDT
 
-  const THEME_KEY = 'kfb_theme_mode_v2';
+  const THEME_KEY = 'kfb_theme_mode_v3';
 
   // Theme state: 'light' (default is white) or 'dark' (black)
   const [theme, setThemeState] = useState(() => {
@@ -92,6 +92,16 @@ export const StoreProvider = ({ children }) => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [activeQuickView, setActiveQuickView] = useState(null);
   const [lastOrder, setLastOrder] = useState(null);
+  const [checkoutPrompt, setCheckoutPrompt] = useState(null); // Prompt for instant checkout when adding to cart
+  const isCheckoutPromptOpen = Boolean(checkoutPrompt);
+
+  const closeCheckoutPrompt = () => setCheckoutPrompt(null);
+  const proceedToCheckoutFromPrompt = () => {
+    setCheckoutPrompt(null);
+    setActiveQuickView(null);
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
+  };
 
   // Search & Filtering
   const [searchQuery, setSearchQuery] = useState('');
@@ -132,9 +142,9 @@ export const StoreProvider = ({ children }) => {
   }, [wishlist]);
 
   // Cart operations
-  const addToCart = (product, size, color, quantity = 1) => {
+  const addToCart = (product, size, color, quantity = 1, showPrompt = true) => {
     const chosenSize = size || product.sizes[0];
-    const chosenColor = color || product.colors[0];
+    const chosenColor = color || (product.colors && product.colors[0]) || { name: 'Standard' };
     const cartItemId = `${product.id}-${chosenSize}-${chosenColor.name}`;
 
     setCart((prev) => {
@@ -156,7 +166,16 @@ export const StoreProvider = ({ children }) => {
       ];
     });
 
-    showToast(`Added "${product.name}" to cart`, 'success');
+    showToast(`Added "${product.name}" to bag`, 'success');
+
+    if (showPrompt) {
+      setCheckoutPrompt({
+        product,
+        size: chosenSize,
+        color: chosenColor,
+        quantity,
+      });
+    }
   };
 
   const removeFromCart = (cartItemId) => {
@@ -223,8 +242,8 @@ export const StoreProvider = ({ children }) => {
   const cartSubtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  // Free shipping threshold: ৳2,500
-  const FREE_SHIPPING_THRESHOLD = 2500;
+  // Free shipping threshold: ৳800 (4 items)
+  const FREE_SHIPPING_THRESHOLD = 800;
   const isFreeShipping = cartSubtotal >= FREE_SHIPPING_THRESHOLD;
   const shippingFee = cart.length === 0 ? 0 : isFreeShipping ? 0 : (deliveryRegion === 'dhaka' ? 60 : 120);
 
@@ -256,8 +275,10 @@ export const StoreProvider = ({ children }) => {
     }
 
     // Category filter
-    if (selectedCategory !== 'all' && product.category !== selectedCategory) {
-      return false;
+    if (selectedCategory !== 'all') {
+      const matchPrimary = product.category === selectedCategory;
+      const matchSub = Array.isArray(product.categories) && product.categories.includes(selectedCategory);
+      if (!matchPrimary && !matchSub) return false;
     }
 
     // Gender filter
@@ -315,6 +336,10 @@ export const StoreProvider = ({ children }) => {
         setIsCheckoutOpen,
         activeQuickView,
         setActiveQuickView,
+        checkoutPrompt,
+        isCheckoutPromptOpen,
+        closeCheckoutPrompt,
+        proceedToCheckoutFromPrompt,
         lastOrder,
         setLastOrder,
         searchQuery,

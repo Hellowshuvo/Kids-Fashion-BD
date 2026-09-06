@@ -21,22 +21,22 @@ export const CategoryBar = () => {
     {
       id: 'Baby & Toddler',
       label: 'Baby (0–2Y)',
-      count: PRODUCTS.filter(p => p.category === 'Baby & Toddler').length,
+      count: PRODUCTS.filter(p => p.category === 'Baby & Toddler' || p.categories?.includes('Baby & Toddler')).length,
     },
     {
       id: 'Girls',
       label: 'Girls (2–8Y)',
-      count: PRODUCTS.filter(p => p.category === 'Girls').length,
+      count: PRODUCTS.filter(p => p.category === 'Girls' || p.categories?.includes('Girls')).length,
     },
     {
       id: 'Boys',
       label: 'Boys (2–8Y)',
-      count: PRODUCTS.filter(p => p.category === 'Boys').length,
+      count: PRODUCTS.filter(p => p.category === 'Boys' || p.categories?.includes('Boys')).length,
     },
     {
       id: 'Festive',
       label: 'Eid & Festive',
-      count: PRODUCTS.filter(p => p.category === 'Festive').length,
+      count: PRODUCTS.filter(p => p.category === 'Festive' || p.categories?.includes('Festive')).length,
     },
   ];
 
@@ -48,11 +48,11 @@ export const CategoryBar = () => {
   };
 
   return (
-    <div className={`border-b py-3 shadow-xs transition-colors duration-200 ${
-      isDark ? 'bg-[#09090B] border-neutral-800/80' : 'bg-white border-neutral-200'
+    <div className={`border-b py-2.5 sm:py-3 shadow-xs transition-colors duration-200 sticky top-14 sm:top-16 z-35 backdrop-blur-md ${
+      isDark ? 'bg-[#09090B]/95 border-neutral-800/80' : 'bg-white/95 border-neutral-200'
     }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto pb-0.5 scrollbar-none">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto py-1 scrollbar-none overscroll-x-contain">
           {categories.map((cat) => {
             const isActive = selectedCategory === cat.id;
             return (

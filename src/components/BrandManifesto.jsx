@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { ShieldCheck, Truck, Sparkles, Scissors, Layers } from 'lucide-react';
+import { Truck, Scissors, Layers } from 'lucide-react';
 
 export const BrandManifesto = () => {
   const { theme } = useStore();

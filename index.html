@@ -10,7 +10,7 @@
     <script>
       (function() {
         try {
-          var saved = localStorage.getItem('kfb_theme_mode_v2');
+          var saved = localStorage.getItem('kfb_theme_mode_v3');
           if (saved === 'dark') {
             document.documentElement.classList.add('dark');
             document.documentElement.style.backgroundColor = '#09090B';
@@ -19,7 +19,7 @@
             document.documentElement.classList.remove('dark');
             document.documentElement.style.backgroundColor = '#FFFFFF';
             document.documentElement.style.colorScheme = 'light';
-            localStorage.setItem('kfb_theme_mode_v2', 'light');
+            localStorage.setItem('kfb_theme_mode_v3', 'light');
           }
         } catch (e) {
           document.documentElement.classList.remove('dark');
