@@ -25,6 +25,8 @@ export const CheckoutModal = () => {
     grandTotal,
     formatPrice,
     appliedPromo,
+    applyPromoCode,
+    removePromoCode,
     deliveryRegion,
     setDeliveryRegion,
     clearCart,
@@ -34,6 +36,7 @@ export const CheckoutModal = () => {
 
   const [step, setStep] = useState(1); // 1: Delivery info, 2: Payment & Review
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [promoInput, setPromoInput] = useState('');
 
   // Form Fields
   const [formData, setFormData] = useState({
@@ -705,6 +708,62 @@ export const CheckoutModal = () => {
                   </div>
                 </div>
               )}
+
+              {/* Promo Code Box (Optional) */}
+              <div className="p-3.5 bg-neutral-50 dark:bg-[#09090B] rounded-2xl border border-neutral-200 dark:border-[#27272A] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-300">
+                    Promo Code (Optional)
+                  </span>
+                  {appliedPromo && (
+                    <button
+                      type="button"
+                      onClick={removePromoCode}
+                      className="text-[11px] font-semibold text-red-500 hover:underline cursor-pointer"
+                    >
+                      Remove Code
+                    </button>
+                  )}
+                </div>
+
+                {appliedPromo ? (
+                  <div className="flex items-center justify-between p-2.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800/60 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold text-emerald-800 dark:text-emerald-300">
+                        {appliedPromo.code}
+                      </span>
+                      <span className="text-[11px] text-emerald-700 dark:text-emerald-400">
+                        ({appliedPromo.discountPercent ? `${appliedPromo.discountPercent}% OFF` : 'Free Shipping'})
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                      Applied ✓
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="Enter promo code (e.g. KIDSBD10)"
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                      className="flex-1 bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs font-mono uppercase text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (promoInput.trim()) {
+                          applyPromoCode(promoInput.trim());
+                          setPromoInput('');
+                        }
+                      }}
+                      className="bg-neutral-900 text-white dark:bg-[#F5EFEB] dark:text-black px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-black dark:hover:bg-white transition-all cursor-pointer shadow-xs active:scale-95"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* Order Summary Recap */}
               <div className="bg-neutral-50 dark:bg-[#09090B] p-4 rounded-2xl border border-neutral-200 dark:border-[#27272A] space-y-2 text-xs">

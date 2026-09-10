@@ -6,11 +6,11 @@ export const PRODUCTS = [
     category: "Boys",
     categories: ["Boys", "Festive", "Baby & Toddler"],
     gender: "boy",
-    price: 10,
+    price: 200,
     originalPrice: 350,
     rating: 4.9,
     reviewsCount: 42,
-    badge: "Testing ৳10",
+    badge: "Bestseller ৳200",
     sizes: ["1-2Y", "2-3Y", "3-4Y", "5-6Y", "7-8Y"],
     colors: [
       { name: "Festive Red", hex: "#D62828", class: "bg-[#D62828]" },

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import confetti from 'canvas-confetti';
 import { Loader2 } from 'lucide-react';
@@ -80,7 +80,7 @@ export const PaymentCallbackHandler = () => {
             discount: finalOrder?.discount || 0,
             promoCode: finalOrder?.promoCode || null,
             shipping: finalOrder?.shipping || 0,
-            total: parseFloat(data.charged_amount || data.amount) || finalOrder?.total || 10,
+            total: parseFloat(data.charged_amount || data.amount) || finalOrder?.total || (finalOrder?.subtotal ? finalOrder.subtotal + (finalOrder.shipping || 0) : 0),
             estimatedDelivery: finalOrder?.estimatedDelivery || 'Within 24 to 48 Hours',
           };
 

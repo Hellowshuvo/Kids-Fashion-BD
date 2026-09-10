@@ -4,11 +4,28 @@ import { PRODUCTS } from '../data/products';
 const StoreContext = createContext();
 
 export const StoreProvider = ({ children }) => {
-  // Cart state with LocalStorage persistence
+  // Cart state with LocalStorage persistence & live product syncing
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem('kids_fashion_bd_cart');
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      // Synchronize with current PRODUCTS so prices are always up-to-date
+      return parsed.map((item) => {
+        const liveProduct = PRODUCTS.find((p) => p.id === item.product?.id);
+        if (liveProduct) {
+          return {
+            ...item,
+            product: {
+              ...item.product,
+              price: liveProduct.price,
+              originalPrice: liveProduct.originalPrice,
+              badge: liveProduct.badge,
+            },
+          };
+        }
+        return item;
+      });
     } catch (e) {
       return [];
     }
@@ -227,13 +244,9 @@ export const StoreProvider = ({ children }) => {
       setAppliedPromo({ code: 'EID2026', discountPercent: 15, name: 'Eid Festive 15% OFF' });
       showToast('Promo code EID2026 applied (15% OFF)!', 'success');
       return { success: true, message: '15% Festive Discount applied!' };
-    } else if (trimmed === 'TEST' || trimmed === 'TESTFREE') {
-      setAppliedPromo({ code: trimmed, discountPercent: 0, freeShipping: true, name: 'Testing Free Shipping' });
-      showToast('Free Shipping applied for Testing!', 'success');
-      return { success: true, message: 'Free Shipping applied for Testing!' };
     } else {
-      showToast('Invalid coupon code. Try THESALT10', 'error');
-      return { success: false, message: 'Invalid coupon code. Try THESALT10' };
+      showToast('Invalid coupon code. Try KIDSBD10', 'error');
+      return { success: false, message: 'Invalid coupon code. Try KIDSBD10' };
     }
   };
 
@@ -243,7 +256,7 @@ export const StoreProvider = ({ children }) => {
   };
 
   // Calculations
-  const cartSubtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  const cartSubtotal = cart.reduce((acc, item) => acc + (Number(item.product?.price) || 0) * item.quantity, 0);
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   // Free shipping threshold: ৳800 (4 items)
@@ -251,7 +264,7 @@ export const StoreProvider = ({ children }) => {
   const isFreeShipping = cartSubtotal >= FREE_SHIPPING_THRESHOLD || Boolean(appliedPromo?.freeShipping);
   const shippingFee = cart.length === 0 ? 0 : isFreeShipping ? 0 : (deliveryRegion === 'dhaka' ? 60 : 120);
 
-  const discountAmount = appliedPromo
+  const discountAmount = appliedPromo && appliedPromo.discountPercent
     ? Math.round((cartSubtotal * appliedPromo.discountPercent) / 100)
     : 0;
 
