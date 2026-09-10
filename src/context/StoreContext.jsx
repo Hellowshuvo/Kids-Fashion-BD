@@ -227,6 +227,10 @@ export const StoreProvider = ({ children }) => {
       setAppliedPromo({ code: 'EID2026', discountPercent: 15, name: 'Eid Festive 15% OFF' });
       showToast('Promo code EID2026 applied (15% OFF)!', 'success');
       return { success: true, message: '15% Festive Discount applied!' };
+    } else if (trimmed === 'TEST' || trimmed === 'TESTFREE') {
+      setAppliedPromo({ code: trimmed, discountPercent: 0, freeShipping: true, name: 'Testing Free Shipping' });
+      showToast('Free Shipping applied for Testing!', 'success');
+      return { success: true, message: 'Free Shipping applied for Testing!' };
     } else {
       showToast('Invalid coupon code. Try THESALT10', 'error');
       return { success: false, message: 'Invalid coupon code. Try THESALT10' };
@@ -244,7 +248,7 @@ export const StoreProvider = ({ children }) => {
 
   // Free shipping threshold: ৳800 (4 items)
   const FREE_SHIPPING_THRESHOLD = 800;
-  const isFreeShipping = cartSubtotal >= FREE_SHIPPING_THRESHOLD;
+  const isFreeShipping = cartSubtotal >= FREE_SHIPPING_THRESHOLD || Boolean(appliedPromo?.freeShipping);
   const shippingFee = cart.length === 0 ? 0 : isFreeShipping ? 0 : (deliveryRegion === 'dhaka' ? 60 : 120);
 
   const discountAmount = appliedPromo
