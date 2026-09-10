@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import {
   CheckCircle2,
@@ -6,10 +6,18 @@ import {
   ShoppingBag,
   Clock,
   X,
+  RefreshCcw,
+  ShieldCheck,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react';
 
 export const OrderSuccessModal = () => {
-  const { lastOrder, setLastOrder, formatPrice } = useStore();
+  const { lastOrder, setLastOrder, formatPrice, showToast } = useStore();
+  const [showRefund, setShowRefund] = useState(false);
+  const [refundReason, setRefundReason] = useState('Customer Return / Testing Refund');
+  const [isRefunding, setIsRefunding] = useState(false);
+  const [refundStatus, setRefundStatus] = useState(null);
 
   if (!lastOrder) return null;
 
@@ -20,6 +28,52 @@ export const OrderSuccessModal = () => {
   const handleWhatsAppHelp = () => {
     const text = encodeURIComponent(`Assalamu Alaikum Kids Fashion BD! I placed order #${lastOrder.orderId} (${formatPrice(lastOrder.total)}). Could you please confirm delivery details?`);
     window.open(`https://wa.me/8801712894200?text=${text}`, '_blank');
+  };
+
+  const handleRefund = async () => {
+    const trxId = lastOrder.payment?.trxId;
+    if (!trxId) {
+      showToast('No Transaction ID found for refund', 'error');
+      return;
+    }
+    setIsRefunding(true);
+    setRefundStatus(null);
+
+    try {
+      const res = await fetch('/api/payment/refund', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transaction_id: trxId,
+          payment_method: lastOrder.payment?.paymentMethod || 'bkash',
+          amount: String(lastOrder.total),
+          product_name: lastOrder.items[0]?.product?.name || 'Kids Fashion BD Outfit',
+          reason: refundReason,
+        }),
+      });
+
+      const json = await res.json();
+      const data = json.data || json;
+      setRefundStatus(data);
+
+      if (data.status === true || data.status === 'COMPLETED' || data.status === 'SUCCESS') {
+        showToast('Refund requested successfully via UddoktaPay!', 'success');
+        setLastOrder((prev) => ({
+          ...prev,
+          payment: {
+            ...prev.payment,
+            status: 'Refund Requested via UddoktaPay',
+          },
+        }));
+      } else {
+        showToast(data.message || 'Refund request received gateway response', 'info');
+      }
+    } catch (err) {
+      setRefundStatus({ status: false, message: 'Server communication error' });
+      showToast('Failed to contact refund gateway', 'error');
+    } finally {
+      setIsRefunding(false);
+    }
   };
 
   return (
@@ -142,14 +196,115 @@ export const OrderSuccessModal = () => {
 
             <div className="p-3.5 bg-neutral-50 dark:bg-[#09090B] rounded-xl border border-neutral-200 dark:border-[#27272A] space-y-1">
               <span className="font-semibold text-neutral-900 dark:text-white block uppercase tracking-wider text-[10px] mb-1 font-mono">Payment Summary:</span>
-              <p className="text-neutral-800 dark:text-neutral-200">{lastOrder.payment.method}</p>
-              <p className="text-[#C5A059] font-medium">{lastOrder.payment.status}</p>
+              <p className="text-neutral-800 dark:text-neutral-200 font-medium">{lastOrder.payment.method}</p>
+              <p className="text-[#C5A059] font-medium text-[11px]">{lastOrder.payment.status}</p>
+              {lastOrder.payment?.trxId && (
+                <p className="text-neutral-500 dark:text-neutral-400 font-mono text-[10px] truncate">
+                  TrxID: {lastOrder.payment.trxId}
+                </p>
+              )}
+              {lastOrder.payment?.invoiceId && (
+                <p className="text-neutral-500 dark:text-neutral-400 font-mono text-[10px] truncate">
+                  Invoice: {lastOrder.payment.invoiceId}
+                </p>
+              )}
               <div className="pt-2 mt-2 border-t border-neutral-200 dark:border-[#27272A] flex justify-between font-bold text-neutral-900 dark:text-white">
                 <span className="uppercase text-[11px]">Grand Total:</span>
                 <span className="font-mono text-sm text-neutral-900 dark:text-[#F5EFEB]">{formatPrice(lastOrder.total)}</span>
               </div>
             </div>
           </div>
+
+          {/* UddoktaPay Refund Testing Section */}
+          {lastOrder.payment?.trxId && (
+            <div className="p-4 bg-neutral-50 dark:bg-[#09090B] rounded-2xl border border-neutral-200 dark:border-[#27272A] space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <RefreshCcw className="w-4 h-4 text-[#C5A059]" />
+                  <span className="text-xs font-bold text-neutral-900 dark:text-white">
+                    UddoktaPay Refund API Testing
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowRefund(!showRefund)}
+                  className="text-[11px] font-semibold text-[#C5A059] hover:underline cursor-pointer"
+                >
+                  {showRefund ? 'Hide Refund Panel' : 'Test Refund API →'}
+                </button>
+              </div>
+
+              {showRefund && (
+                <div className="pt-2 border-t border-neutral-200 dark:border-[#27272A] space-y-3 text-xs animate-in fade-in">
+                  <p className="text-[11px] text-neutral-600 dark:text-neutral-400">
+                    Use this tool to test the UddoktaPay Refund API endpoint with TrxID{' '}
+                    <strong className="text-neutral-900 dark:text-white font-mono">{lastOrder.payment.trxId}</strong>:
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-mono text-neutral-500 mb-1">Transaction ID</label>
+                      <input
+                        type="text"
+                        disabled
+                        value={lastOrder.payment.trxId}
+                        className="w-full bg-neutral-100 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3 py-2 font-mono text-neutral-700 dark:text-neutral-300 text-xs cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-mono text-neutral-500 mb-1">Refund Amount (৳)</label>
+                      <input
+                        type="text"
+                        disabled
+                        value={lastOrder.total}
+                        className="w-full bg-neutral-100 dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] rounded-xl px-3 py-2 font-mono text-neutral-700 dark:text-neutral-300 text-xs cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-mono text-neutral-500 mb-1">Refund Reason</label>
+                    <input
+                      type="text"
+                      value={refundReason}
+                      onChange={(e) => setRefundReason(e.target.value)}
+                      placeholder="e.g. Customer cancelled order / Testing refund"
+                      className="w-full bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-neutral-900 dark:text-white text-xs focus:outline-none focus:border-[#C5A059]"
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleRefund}
+                    disabled={isRefunding}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {isRefunding ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Communicating with UddoktaPay...</span>
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCcw className="w-3.5 h-3.5" />
+                        <span>Send Refund Request via API</span>
+                      </>
+                    )}
+                  </button>
+
+                  {refundStatus && (
+                    <div className={`p-3 rounded-xl border text-xs ${
+                      refundStatus.status === true
+                        ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                        : 'bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300'
+                    }`}>
+                      <strong>Gateway Response:</strong> {refundStatus.message || JSON.stringify(refundStatus)}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Action buttons */}
           <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5 pb-[env(safe-area-inset-bottom,0px)]">

@@ -9,6 +9,9 @@ import {
   CheckCircle2,
   Lock,
   ArrowRight,
+  ShieldCheck,
+  Sparkles,
+  Loader2,
 } from 'lucide-react';
 
 export const CheckoutModal = () => {
@@ -41,7 +44,7 @@ export const CheckoutModal = () => {
     cityArea: '',
     streetAddress: '',
     notes: '',
-    paymentMethod: 'cod', // 'cod', 'bkash', 'card'
+    paymentMethod: 'online', // 'online' (UddoktaPay), 'cod', 'bkash'
     bkashNumber: '',
     trxId: '',
     cardNumber: '',
@@ -98,9 +101,87 @@ export const CheckoutModal = () => {
     }));
   };
 
-  const handlePlaceOrder = (e) => {
+  const handlePlaceOrder = async (e) => {
     e.preventDefault();
 
+    // 1. ONLINE PAYMENT VIA UDDOKTAPAY / PAYMENTLY GATEWAY
+    if (formData.paymentMethod === 'online') {
+      setIsSubmitting(true);
+      const cleanPhone = formData.phone.replace(/[^0-9]/g, '');
+      const customerEmail = formData.email?.trim() || `${cleanPhone || 'customer'}@kidsfashionbd.com`;
+      const orderId = 'KB-' + Math.floor(100000 + Math.random() * 900000);
+
+      const pendingOrder = {
+        orderId,
+        date: new Date().toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }),
+        customer: {
+          name: formData.fullName,
+          phone: formData.phone,
+          email: formData.email || 'N/A',
+          division: formData.division,
+          cityArea: formData.cityArea,
+          address: formData.streetAddress,
+          notes: formData.notes,
+        },
+        payment: {
+          method: 'Online Payment (UddoktaPay)',
+          status: 'Payment Pending Confirmation',
+        },
+        items: [...cart],
+        subtotal: cartSubtotal,
+        discount: discountAmount,
+        promoCode: appliedPromo?.code || null,
+        shipping: shippingFee,
+        total: grandTotal,
+        estimatedDelivery:
+          deliveryRegion === 'dhaka'
+            ? 'Within 24 to 48 Hours'
+            : 'Within 3 to 5 Business Days',
+      };
+
+      try {
+        localStorage.setItem('kfb_pending_order', JSON.stringify(pendingOrder));
+
+        const origin = window.location.origin;
+        const res = await fetch('/api/payment/create-charge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fullName: formData.fullName,
+            email: customerEmail,
+            amount: grandTotal,
+            metadata: {
+              order_id: orderId,
+              phone: formData.phone,
+            },
+            redirectUrl: `${origin}/?payment_status=success`,
+            cancelUrl: `${origin}/?payment_status=cancel`,
+          }),
+        });
+
+        const json = await res.json();
+        const data = json.data || json;
+
+        if (data.status && data.payment_url) {
+          showToast('Redirecting to UddoktaPay secure checkout...', 'info');
+          window.location.href = data.payment_url;
+          return;
+        } else {
+          showToast(data.message || 'Could not initiate online payment gateway', 'error');
+          setIsSubmitting(false);
+        }
+      } catch (err) {
+        showToast('Server connection error. Please try again.', 'error');
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
+    // 2. MANUAL BKASH TRANSFER
     if (formData.paymentMethod === 'bkash') {
       if (!formData.trxId || formData.trxId.length < 6) {
         showToast('Please enter the bKash/Nagad Transaction ID (TrxID)', 'error');
@@ -108,6 +189,7 @@ export const CheckoutModal = () => {
       }
     }
 
+    // 3. CASH ON DELIVERY OR MANUAL
     setIsSubmitting(true);
 
     setTimeout(() => {
@@ -142,9 +224,9 @@ export const CheckoutModal = () => {
             formData.paymentMethod === 'cod'
               ? 'Cash on Delivery (COD)'
               : formData.paymentMethod === 'bkash'
-              ? `bKash / Nagad Mobile Banking (TrxID: ${formData.trxId})`
+              ? `bKash / Nagad Manual (TrxID: ${formData.trxId})`
               : 'Credit / Debit Card',
-          status: formData.paymentMethod === 'cod' ? 'Payment Due upon Delivery' : 'Paid Online',
+          status: formData.paymentMethod === 'cod' ? 'Payment Due upon Delivery' : 'Paid',
         },
         items: [...cart],
         subtotal: cartSubtotal,
@@ -162,7 +244,7 @@ export const CheckoutModal = () => {
       clearCart();
       setIsSubmitting(false);
       setIsCheckoutOpen(false);
-    }, 1200);
+    }, 1000);
   };
 
   return (
@@ -412,6 +494,29 @@ export const CheckoutModal = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   
+                  {/* Online Automated Gateway (UddoktaPay) */}
+                  <div
+                    onClick={() => handleInputChange('paymentMethod', 'online')}
+                    className={`p-3.5 rounded-2xl border cursor-pointer transition-all relative overflow-hidden ${
+                      formData.paymentMethod === 'online'
+                        ? 'border-[#C5A059] bg-amber-50/60 dark:bg-[#1E1E22] ring-2 ring-[#C5A059]/40 shadow-sm'
+                        : 'border-neutral-200 bg-neutral-50 dark:border-[#27272A] dark:bg-[#141417] hover:border-neutral-400 dark:hover:border-neutral-500'
+                    }`}
+                  >
+                    <div className="absolute top-2 right-2">
+                      <span className="text-[9px] uppercase font-bold tracking-wider bg-[#C5A059] text-black px-1.5 py-0.5 rounded-md">
+                        Auto
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <ShieldCheck className="w-4 h-4 text-[#C5A059]" />
+                      <span className="text-xs font-bold text-neutral-900 dark:text-white">Pay Online</span>
+                    </div>
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight">
+                      bKash, Nagad, Rocket, Cards
+                    </p>
+                  </div>
+
                   {/* Cash on Delivery */}
                   <div
                     onClick={() => handleInputChange('paymentMethod', 'cod')}
@@ -426,11 +531,11 @@ export const CheckoutModal = () => {
                       <span className="text-xs font-bold text-neutral-900 dark:text-white">Cash on Delivery</span>
                     </div>
                     <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight">
-                      Pay cash upon delivery to courier in BD
+                      Pay cash upon delivery in BD
                     </p>
                   </div>
 
-                  {/* bKash / Nagad */}
+                  {/* Manual bKash */}
                   <div
                     onClick={() => handleInputChange('paymentMethod', 'bkash')}
                     className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
@@ -441,33 +546,58 @@ export const CheckoutModal = () => {
                   >
                     <div className="flex items-center gap-2 mb-1.5">
                       <Smartphone className="w-4 h-4 text-pink-500" />
-                      <span className="text-xs font-bold text-neutral-900 dark:text-white">bKash / Nagad</span>
+                      <span className="text-xs font-bold text-neutral-900 dark:text-white">Manual bKash</span>
                     </div>
                     <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight">
-                      Mobile wallet payment simulator
-                    </p>
-                  </div>
-
-                  {/* Card Payment */}
-                  <div
-                    onClick={() => handleInputChange('paymentMethod', 'card')}
-                    className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
-                      formData.paymentMethod === 'card'
-                        ? 'border-[#C5A059] bg-sky-50/50 dark:bg-[#1E1E22] ring-1 ring-[#C5A059]/30'
-                        : 'border-neutral-200 bg-neutral-50 dark:border-[#27272A] dark:bg-[#141417] hover:border-neutral-400 dark:hover:border-neutral-500'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <CreditCard className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />
-                      <span className="text-xs font-bold text-neutral-900 dark:text-white">Debit / Credit Card</span>
-                    </div>
-                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight">
-                      Visa, Mastercard, AMEX
+                      Send Money & enter TrxID
                     </p>
                   </div>
 
                 </div>
               </div>
+
+              {/* Online Gateway Info Banner when selected */}
+              {formData.paymentMethod === 'online' && (
+                <div className="p-4 bg-gradient-to-br from-amber-500/10 via-pink-500/5 to-blue-500/10 dark:from-[#18181B] dark:to-[#121214] border border-[#C5A059]/40 dark:border-[#C5A059]/30 rounded-2xl space-y-3 animate-in fade-in">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                      </span>
+                      <span className="text-xs font-bold text-neutral-900 dark:text-white">
+                        UddoktaPay / Paymently Automated Gateway
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono uppercase bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/20">
+                      ✓ Instant Auto-Verify
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                    <div className="p-2 rounded-xl bg-white dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] text-center">
+                      <span className="text-xs font-bold text-pink-600 block">bKash</span>
+                      <span className="text-[10px] text-neutral-400">Personal / App</span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] text-center">
+                      <span className="text-xs font-bold text-orange-600 block">Nagad</span>
+                      <span className="text-[10px] text-neutral-400">Direct Gateway</span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] text-center">
+                      <span className="text-xs font-bold text-purple-600 block">Rocket / Upay</span>
+                      <span className="text-[10px] text-neutral-400">Instant Pin</span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white dark:bg-[#1E1E22] border border-neutral-200 dark:border-[#27272A] text-center">
+                      <span className="text-xs font-bold text-blue-600 block">Visa / Master</span>
+                      <span className="text-[10px] text-neutral-400">Cards & Bank</span>
+                    </div>
+                  </div>
+
+                  <p className="text-[11px] text-neutral-600 dark:text-neutral-300 leading-relaxed pt-1">
+                    Clicking <strong>Pay Online Now</strong> will securely redirect you to the Paymently gateway to complete payment. Upon successful payment, your order will be automatically verified and confirmed.
+                  </p>
+                </div>
+              )}
 
               {/* bKash / Nagad Instructions when selected */}
               {formData.paymentMethod === 'bkash' && (
@@ -629,11 +759,18 @@ export const CheckoutModal = () => {
                     className="flex-1 bg-neutral-900 text-white hover:bg-black dark:bg-[#F5EFEB] dark:text-black dark:hover:bg-white py-3.5 px-6 rounded-full text-xs font-bold uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-98"
                   >
                     {isSubmitting ? (
-                      <span>Confirming Order...</span>
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-[#C5A059]" />
+                        <span>{formData.paymentMethod === 'online' ? 'Connecting Gateway...' : 'Confirming Order...'}</span>
+                      </>
                     ) : (
                       <>
-                        <span>Place Order ({formatPrice(grandTotal)})</span>
-                        <CheckCircle2 className="w-4 h-4 text-white dark:text-black" />
+                        <span>
+                          {formData.paymentMethod === 'online'
+                            ? `Pay Online Now (${formatPrice(grandTotal)})`
+                            : `Place Order (${formatPrice(grandTotal)})`}
+                        </span>
+                        <ArrowRight className="w-4 h-4 text-white dark:text-black" />
                       </>
                     )}
                   </button>
