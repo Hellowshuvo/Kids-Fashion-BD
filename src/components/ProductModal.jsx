@@ -10,6 +10,9 @@ export const ProductModal = () => {
     formatPrice,
     toggleWishlist,
     isInWishlist,
+    setIsCheckoutOpen,
+    setIsCartOpen,
+    closeCheckoutPrompt,
   } = useStore();
 
   const product = activeQuickView;
@@ -33,14 +36,18 @@ export const ProductModal = () => {
   const isWishlisted = isInWishlist(product.id);
 
   const handleAddToCart = () => {
-    addToCart(product, selectedSize, selectedColor, quantity);
+    addToCart(product, selectedSize, selectedColor, quantity, false);
     setActiveQuickView(null);
+    if (setIsCheckoutOpen) setIsCheckoutOpen(true);
   };
 
   const handleBuyNow = () => {
+    // 1-click Direct Action: Add to order, close modal, skip cart drawer, directly open Checkout Info
     addToCart(product, selectedSize, selectedColor, quantity, false);
     setActiveQuickView(null);
-    setIsCheckoutOpen(true);
+    if (setIsCartOpen) setIsCartOpen(false);
+    if (closeCheckoutPrompt) closeCheckoutPrompt();
+    if (setIsCheckoutOpen) setIsCheckoutOpen(true);
   };
 
   return (

@@ -94,10 +94,9 @@ export const ProductCard = ({ product, style }) => {
               setActiveQuickView(product);
             }}
             disabled={product.inStock === false}
-            className="w-full bg-neutral-900 hover:bg-black text-white dark:bg-[#F5EFEB] dark:hover:bg-white dark:text-[#09090B] py-2.5 rounded-xl text-xs font-bold tracking-wide uppercase transition-all cursor-pointer shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[#C5A059] hover:bg-[#b08e4d] text-black py-2.5 rounded-xl text-xs font-bold tracking-wide uppercase transition-all cursor-pointer shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>{product.inStock === false ? 'Out of Stock' : 'Select Size'}</span>
+            <span>{product.inStock === false ? 'Out of Stock' : '⚡ Buy Now'}</span>
           </button>
         </div>
       </div>
@@ -163,12 +162,11 @@ export const ProductCard = ({ product, style }) => {
           {/* Mobile Tap-to-Order Action */}
           <button
             onClick={() => setActiveQuickView(product)}
-            aria-label="Select size & add"
+            aria-label="Buy Now"
             disabled={product.inStock === false}
-            className="sm:hidden bg-neutral-900 text-white dark:bg-[#F5EFEB] dark:text-[#09090B] px-2.5 py-1.5 rounded-lg text-[11px] font-bold tracking-wider uppercase flex items-center gap-1 active:scale-95 transition-transform shadow-xs disabled:opacity-50"
+            className="sm:hidden bg-[#C5A059] text-black px-3 py-1.5 rounded-lg text-[11px] font-bold tracking-wider uppercase flex items-center gap-1 active:scale-95 transition-transform shadow-xs disabled:opacity-50"
           >
-            <Plus className="w-3 h-3" />
-            <span>Add</span>
+            <span>Buy Now</span>
           </button>
         </div>
 

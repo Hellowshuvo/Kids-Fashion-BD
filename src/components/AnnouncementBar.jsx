@@ -2,7 +2,7 @@ import React from 'react';
 import { useStore } from '../context/StoreContext';
 
 export const AnnouncementBar = () => {
-  const { currency, setCurrency, applyPromoCode, theme } = useStore();
+  const { currency, setCurrency, theme } = useStore();
   const isDark = theme === 'dark';
 
   return (
@@ -19,20 +19,11 @@ export const AnnouncementBar = () => {
           <span>Katherpool Shibu Market, Narayanganj</span>
         </div>
 
-        {/* Center: Promo / Delivery info */}
+        {/* Center: Delivery & Store info */}
         <div className={`flex-1 text-center font-medium text-[10px] sm:text-xs tracking-wider flex items-center justify-center gap-1 sm:gap-2 truncate ${
           isDark ? 'text-neutral-300' : 'text-neutral-800'
         }`}>
-          <span className="truncate">✨ Special Deal: All Items ৳200 · COD Nationwide</span>
-          <span className="text-neutral-400 dark:text-neutral-600">•</span>
-          <span className="hidden xs:inline">Use code </span>
-          <button
-            onClick={() => applyPromoCode('KIDSBD10')}
-            className="text-[#C5A059] font-bold underline underline-offset-2 hover:opacity-80 cursor-pointer transition-opacity"
-          >
-            KIDSBD10
-          </button>
-          <span className="hidden xs:inline"> for 10% OFF</span>
+          <span className="truncate">✨ Premium Kids Fashion · Nationwide Delivery · Online & Cash on Delivery</span>
         </div>
 
         {/* Right: Currency Selector */}

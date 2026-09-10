@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useStore } from '../context/StoreContext';
 import {
   X,
@@ -6,7 +6,6 @@ import {
   Trash2,
   ArrowRight,
   Truck,
-  Tag,
 } from 'lucide-react';
 
 export const CartDrawer = () => {
@@ -21,10 +20,6 @@ export const CartDrawer = () => {
     shippingFee,
     isFreeShipping,
     FREE_SHIPPING_THRESHOLD,
-    appliedPromo,
-    applyPromoCode,
-    removePromoCode,
-    discountAmount,
     grandTotal,
     deliveryRegion,
     setDeliveryRegion,
@@ -32,16 +27,7 @@ export const CartDrawer = () => {
     setIsCheckoutOpen,
   } = useStore();
 
-  const [promoInput, setPromoInput] = useState('');
-
   if (!isCartOpen) return null;
-
-  const handleApplyPromo = (e) => {
-    e.preventDefault();
-    if (!promoInput.trim()) return;
-    applyPromoCode(promoInput);
-    setPromoInput('');
-  };
 
   const freeShippingProgress = Math.min(
     100,
@@ -207,40 +193,6 @@ export const CartDrawer = () => {
           {cart.length > 0 && (
             <div className="p-5 border-t border-neutral-200 dark:border-[#27272A] bg-neutral-50 dark:bg-[#09090B] space-y-3.5 text-left">
               
-              {/* Promo code form */}
-              {appliedPromo ? (
-                <div className="flex items-center justify-between bg-white dark:bg-[#1E1E22] border border-[#C5A059]/40 p-2.5 rounded-xl text-xs">
-                  <div className="flex items-center gap-2">
-                    <Tag className="w-3.5 h-3.5 text-[#C5A059]" />
-                    <span className="font-medium text-neutral-900 dark:text-white">
-                      {appliedPromo.code} <span className="text-[#C5A059]">({appliedPromo.discountPercent}% OFF)</span>
-                    </span>
-                  </div>
-                  <button
-                    onClick={removePromoCode}
-                    className="text-xs text-rose-500 hover:underline font-medium cursor-pointer"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleApplyPromo} className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Coupon code (Try KIDSBD10)"
-                    value={promoInput}
-                    onChange={(e) => setPromoInput(e.target.value)}
-                    className="flex-1 bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs uppercase text-neutral-900 dark:text-white placeholder:normal-case placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#C5A059]"
-                  />
-                  <button
-                    type="submit"
-                    className="bg-neutral-200 hover:bg-neutral-300 dark:bg-[#27272A] dark:hover:bg-[#323238] text-neutral-900 dark:text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
-                  >
-                    Apply
-                  </button>
-                </form>
-              )}
-
               {/* Delivery Zone Selection */}
               <div className="pt-2 flex items-center justify-between text-xs">
                 <span className="text-neutral-500 dark:text-neutral-400">Delivery:</span>
@@ -274,13 +226,6 @@ export const CartDrawer = () => {
                   <span>Subtotal</span>
                   <span className="text-neutral-900 dark:text-white font-mono">{formatPrice(cartSubtotal)}</span>
                 </div>
-
-                {appliedPromo && (
-                  <div className="flex justify-between text-[#C5A059] font-medium">
-                    <span>Discount ({appliedPromo.discountPercent}%)</span>
-                    <span className="font-mono">-{formatPrice(discountAmount)}</span>
-                  </div>
-                )}
 
                 <div className="flex justify-between text-neutral-500 dark:text-neutral-400">
                   <span>Estimated Shipping</span>

@@ -127,8 +127,6 @@ export const StoreProvider = ({ children }) => {
   const [selectedSize, setSelectedSize] = useState('all');
   const [selectedSort, setSelectedSort] = useState('featured');
 
-  // Promo code
-  const [appliedPromo, setAppliedPromo] = useState(null);
   const [deliveryRegion, setDeliveryRegion] = useState('dhaka'); // 'dhaka' or 'outside'
 
   // Toast notification
@@ -214,7 +212,6 @@ export const StoreProvider = ({ children }) => {
 
   const clearCart = () => {
     setCart([]);
-    setAppliedPromo(null);
   };
 
   // Wishlist operations
@@ -233,42 +230,17 @@ export const StoreProvider = ({ children }) => {
     return wishlist.some((item) => item.id === productId);
   };
 
-  // Promo Code Validation
-  const applyPromoCode = (code) => {
-    const trimmed = code.trim().toUpperCase();
-    if (trimmed === 'THESALT10' || trimmed === 'KIDSBD10') {
-      setAppliedPromo({ code: trimmed, discountPercent: 10, name: '10% Atelier Welcome Discount' });
-      showToast(`Promo code ${trimmed} applied (10% OFF)!`, 'success');
-      return { success: true, message: '10% Discount applied!' };
-    } else if (trimmed === 'EID2026') {
-      setAppliedPromo({ code: 'EID2026', discountPercent: 15, name: 'Eid Festive 15% OFF' });
-      showToast('Promo code EID2026 applied (15% OFF)!', 'success');
-      return { success: true, message: '15% Festive Discount applied!' };
-    } else {
-      showToast('Invalid coupon code. Try KIDSBD10', 'error');
-      return { success: false, message: 'Invalid coupon code. Try KIDSBD10' };
-    }
-  };
-
-  const removePromoCode = () => {
-    setAppliedPromo(null);
-    showToast('Promo code removed', 'info');
-  };
-
   // Calculations
   const cartSubtotal = cart.reduce((acc, item) => acc + (Number(item.product?.price) || 0) * item.quantity, 0);
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   // Free shipping threshold: ৳800 (4 items)
   const FREE_SHIPPING_THRESHOLD = 800;
-  const isFreeShipping = cartSubtotal >= FREE_SHIPPING_THRESHOLD || Boolean(appliedPromo?.freeShipping);
+  const isFreeShipping = cartSubtotal >= FREE_SHIPPING_THRESHOLD;
   const shippingFee = cart.length === 0 ? 0 : isFreeShipping ? 0 : (deliveryRegion === 'dhaka' ? 60 : 120);
 
-  const discountAmount = appliedPromo && appliedPromo.discountPercent
-    ? Math.round((cartSubtotal * appliedPromo.discountPercent) / 100)
-    : 0;
-
-  const grandTotal = Math.max(0, cartSubtotal - discountAmount + shippingFee);
+  const discountAmount = 0;
+  const grandTotal = Math.max(0, cartSubtotal + shippingFee);
 
   // Currency formatting
   const formatPrice = (amountInBDT) => {
@@ -331,9 +303,6 @@ export const StoreProvider = ({ children }) => {
         shippingFee,
         isFreeShipping,
         FREE_SHIPPING_THRESHOLD,
-        appliedPromo,
-        applyPromoCode,
-        removePromoCode,
         discountAmount,
         grandTotal,
         deliveryRegion,

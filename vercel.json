@@ -1,0 +1,21 @@
+﻿{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/payment/create-charge",
+      "destination": "/api/payment/create-charge.js"
+    },
+    {
+      "source": "/api/payment/verify",
+      "destination": "/api/payment/verify.js"
+    },
+    {
+      "source": "/api/payment/refund",
+      "destination": "/api/payment/refund.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
