@@ -1,27 +1,37 @@
-﻿// Vercel Serverless Function for Refunding UddoktaPay / Paymently Payment
+// Vercel Serverless Function for Refunding UddoktaPay / Paymently Payment
 const DEFAULT_BASE_URL = 'https://kidsfashionbd.paymently.io/api';
 const DEFAULT_API_KEY = 'lbK81QaiOQsiAsoJ9zA5cnPffFZxncpekiF3PPZK';
 
 async function getParsedBody(req) {
-  if (req.body && typeof req.body === 'object') {
-    return req.body;
+  if (req.body) {
+    if (typeof req.body === 'object') return req.body;
+    if (typeof req.body === 'string' && req.body.trim()) {
+      try {
+        return JSON.parse(req.body);
+      } catch (e) {
+        return {};
+      }
+    }
   }
-  if (typeof req.body === 'string' && req.body.trim()) {
-    try {
-      return JSON.parse(req.body);
-    } catch (e) {}
+  if (req.readableEnded) {
+    return {};
   }
   return new Promise((resolve) => {
     let data = '';
+    const timer = setTimeout(() => resolve({}), 2000);
     req.on('data', (chunk) => { data += chunk; });
     req.on('end', () => {
+      clearTimeout(timer);
       try {
         resolve(data ? JSON.parse(data) : {});
       } catch (e) {
         resolve({});
       }
     });
-    req.on('error', () => resolve({}));
+    req.on('error', () => {
+      clearTimeout(timer);
+      resolve({});
+    });
   });
 }
 
