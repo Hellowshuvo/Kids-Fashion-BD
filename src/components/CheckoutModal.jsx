@@ -77,25 +77,25 @@ export const CheckoutModal = () => {
 
   const copyMerchantNumber = () => {
     try {
-      navigator.clipboard.writeText('01712894200');
+      navigator.clipboard.writeText('01842533335');
       setCopiedNumber(true);
-      showToast('Merchant number 01712-894200 copied!', 'success');
+      showToast('Merchant number 01842-533335 copied!', 'success');
       setTimeout(() => setCopiedNumber(false), 2500);
     } catch (e) {
-      showToast('Merchant number: 01712-894200', 'info');
+      showToast('Merchant number: 01842-533335', 'info');
     }
   };
 
   const handleWhatsAppOrder = () => {
     const itemsSummary = cart.map(i => `${i.product.name} (${i.size}, ${i.color.name}) x${i.quantity}`).join(', ');
     const text = encodeURIComponent(`Assalamu Alaikum Kids Fashion BD! I would like to place an order from my phone:\n\n🛍️ Items: ${itemsSummary}\n💰 Total: ৳${grandTotal}\n👤 Name: ${formData.fullName || 'Not provided'}\n📱 Phone: ${formData.phone || 'Not provided'}\n📍 Address: ${formData.streetAddress || ''} ${formData.cityArea || ''} ${formData.division}\n💳 Preferred Payment: ${formData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'bKash/Nagad'}`);
-    window.open(`https://wa.me/8801712894200?text=${text}`, '_blank');
+    window.open(`https://wa.me/8801842533335?text=${text}`, '_blank');
   };
 
   const fillSampleTrxId = () => {
     setFormData((prev) => ({
       ...prev,
-      bkashNumber: prev.phone || '01712894200',
+      bkashNumber: prev.phone || '01842533335',
       trxId: 'BKL' + Math.floor(10000000 + Math.random() * 90000000),
     }));
   };
@@ -638,7 +638,7 @@ export const CheckoutModal = () => {
                   </div>
 
                   <div className="text-xs text-neutral-700 dark:text-neutral-300 space-y-1">
-                    <p>1. Send <strong className="text-neutral-900 dark:text-white font-mono">{formatPrice(grandTotal)}</strong> to Merchant: <strong className="text-[#C5A059] font-mono">01712-894200</strong></p>
+                    <p>1. Send <strong className="text-neutral-900 dark:text-white font-mono">{formatPrice(grandTotal)}</strong> to Merchant: <strong className="text-[#C5A059] font-mono">01842-533335</strong></p>
                     <p>2. Enter Reference: <strong className="text-neutral-900 dark:text-white">KBD</strong></p>
                     <p>3. Enter your Transaction ID (TrxID) below to verify instantly:</p>
                   </div>

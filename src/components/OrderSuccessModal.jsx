@@ -27,7 +27,7 @@ export const OrderSuccessModal = () => {
 
   const handleWhatsAppHelp = () => {
     const text = encodeURIComponent(`Assalamu Alaikum Kids Fashion BD! I placed order #${lastOrder.orderId} (${formatPrice(lastOrder.total)}). Could you please confirm delivery details?`);
-    window.open(`https://wa.me/8801712894200?text=${text}`, '_blank');
+    window.open(`https://wa.me/8801842533335?text=${text}`, '_blank');
   };
 
   const handleRefund = async () => {

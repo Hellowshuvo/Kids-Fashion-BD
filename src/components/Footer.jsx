@@ -145,11 +145,11 @@ export const Footer = () => {
               </div>
               <div className="flex items-center gap-2.5">
                 <Phone className="w-3.5 h-3.5 text-[#C5A059] flex-shrink-0" />
-                <span>+880 1712-894200</span>
+                <a href="tel:+8801842533335" className="hover:text-neutral-900 dark:hover:text-white transition-colors">+880 1842-533335</a>
               </div>
               <div className="flex items-center gap-2.5">
                 <Mail className="w-3.5 h-3.5 text-[#C5A059] flex-shrink-0" />
-                <span>hello@kidsfashionbd.com</span>
+                <a href="mailto:Kidsfashionbd.store@gmail.com" className="hover:text-neutral-900 dark:hover:text-white transition-colors">Kidsfashionbd.store@gmail.com</a>
               </div>
             </div>
           </div>

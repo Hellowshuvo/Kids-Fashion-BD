@@ -28,7 +28,7 @@ export const ChatWidget = () => {
         ...prev,
         {
           sender: 'bot',
-          text: 'Thank you! For priority concierge or instant styling assistance in Narayanganj & Dhaka, connect directly with our studio at +880 1712-894200.',
+          text: 'Thank you! For priority concierge or instant styling assistance in Narayanganj & Dhaka, connect directly with our studio at +880 1842-533335.',
           time: 'Just now',
         },
       ]);
@@ -73,7 +73,7 @@ export const ChatWidget = () => {
             </span>
             <div className="flex items-center gap-3 shrink-0">
               <a
-                href="https://wa.me/8801712894200"
+                href="https://wa.me/8801842533335"
                 target="_blank"
                 rel="noreferrer"
                 className="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold flex items-center gap-1"
@@ -81,7 +81,7 @@ export const ChatWidget = () => {
                 <span>WhatsApp</span>
               </a>
               <a
-                href="tel:+8801712894200"
+                href="tel:+8801842533335"
                 className="text-[#C5A059] hover:underline flex items-center gap-1 font-semibold"
               >
                 <Phone className="w-2.5 h-2.5" />

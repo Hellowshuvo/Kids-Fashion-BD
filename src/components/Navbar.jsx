@@ -311,10 +311,10 @@ export const Navbar = () => {
             {/* Direct Studio Call / WhatsApp Order */}
             <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800 space-y-2">
               <a
-                href="tel:+8801712894200"
+                href="tel:+8801842533335"
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-white text-xs font-bold uppercase tracking-wider hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
               >
-                <span>📞 Call Studio: 01712-894200</span>
+                <span>📞 Call Studio: 01842-533335</span>
               </a>
               <p className="text-[10px] text-center text-neutral-500">
                 Katherpool Shibu Market, Narayanganj · 24-48h Dispatch
