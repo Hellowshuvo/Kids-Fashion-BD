@@ -3,19 +3,40 @@ import { useStore } from '../context/StoreContext';
 import { Check, ArrowRight, Clock } from 'lucide-react';
 
 export const Newsletter = () => {
-  const { showToast, theme } = useStore();
+  const { showToast, theme, applyCoupon } = useStore();
   const isDark = theme === 'dark';
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email.trim() || !email.includes('@')) {
       showToast('Please enter a valid email address', 'error');
       return;
     }
-    setIsSubscribed(true);
-    showToast('Thank you! Use KIDSBD10 for 10% OFF', 'success');
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (res.ok && data.status) {
+        setIsSubscribed(true);
+        showToast(data.message || 'Thank you! Use KIDSBD10 for 10% OFF', 'success');
+        if (applyCoupon) {
+          applyCoupon('KIDSBD10');
+        }
+      } else {
+        showToast(data.message || 'Could not subscribe. Please try again.', 'error');
+      }
+    } catch (err) {
+      showToast('Connection error. Please try again.', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -60,9 +81,10 @@ export const Newsletter = () => {
               />
               <button
                 type="submit"
-                className="bg-neutral-900 text-white hover:bg-black dark:bg-[#F5EFEB] dark:hover:bg-white dark:text-[#09090B] px-6 py-2.5 rounded-full text-xs uppercase tracking-wider font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02]"
+                disabled={isSubmitting}
+                className="bg-neutral-900 text-white hover:bg-black dark:bg-[#F5EFEB] dark:hover:bg-white dark:text-[#09090B] px-6 py-2.5 rounded-full text-xs uppercase tracking-wider font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] disabled:opacity-50"
               >
-                <span>Subscribe</span>
+                <span>{isSubmitting ? 'Subscribing...' : 'Subscribe'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </form>

@@ -18,6 +18,9 @@ import { OrderSuccessModal } from './components/OrderSuccessModal';
 import { PaymentCallbackHandler } from './components/PaymentCallbackHandler';
 import { Toast } from './components/Toast';
 import { ChatWidget } from './components/ChatWidget';
+import { ContactModal } from './components/ContactModal';
+import { OrderTrackingModal } from './components/OrderTrackingModal';
+import { AdminDashboard } from './components/AdminDashboard';
 import { ShoppingBag, Heart, Home, Grid } from 'lucide-react';
 
 const MainLayout = () => {
@@ -71,6 +74,9 @@ const MainLayout = () => {
       <CheckoutModal />
       <OrderSuccessModal />
       <PaymentCallbackHandler />
+      <ContactModal />
+      <OrderTrackingModal />
+      <AdminDashboard />
       <Toast />
       <ChatWidget />
 

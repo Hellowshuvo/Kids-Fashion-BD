@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { PRODUCTS } from '../data/products';
+import { TRANSLATIONS } from '../data/translations';
 
 const StoreContext = createContext();
 
@@ -102,6 +103,100 @@ export const StoreProvider = ({ children }) => {
       localStorage.setItem('kfb_theme', theme);
     } catch (e) {}
   }, [theme]);
+
+  // Language state: 'bn' (default) or 'en'
+  const [language, setLanguageState] = useState(() => {
+    try {
+      return localStorage.getItem('kfb_language') || 'bn';
+    } catch (e) {
+      return 'bn';
+    }
+  });
+
+  const setLanguage = (lang) => {
+    setLanguageState(lang);
+    try {
+      localStorage.setItem('kfb_language', lang);
+    } catch (e) {}
+  };
+
+  const t = (key, params = {}) => {
+    const dict = TRANSLATIONS[language] || TRANSLATIONS.bn;
+    let text = dict[key] || TRANSLATIONS.en[key] || key;
+    for (const [k, v] of Object.entries(params)) {
+      text = text.replace(`{${k}}`, v);
+    }
+    return text;
+  };
+
+  // Coupon state with persistence
+  const [appliedCoupon, setAppliedCoupon] = useState(() => {
+    try {
+      const saved = localStorage.getItem('kfb_coupon');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const applyCoupon = async (code) => {
+    if (!code || !code.trim()) {
+      showToast('Please enter a coupon code', 'error');
+      return false;
+    }
+    try {
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+      const data = await res.json();
+      if (data.status && data.coupon) {
+        setAppliedCoupon(data.coupon);
+        localStorage.setItem('kfb_coupon', JSON.stringify(data.coupon));
+        showToast(`Promo code "${data.coupon.code}" applied! ${data.coupon.discountPercent}% OFF`, 'success');
+        return true;
+      } else {
+        showToast(data.message || 'Invalid promo code', 'error');
+        return false;
+      }
+    } catch (e) {
+      if (code.trim().toUpperCase() === 'KIDSBD10') {
+        const coupon = { code: 'KIDSBD10', discountPercent: 10 };
+        setAppliedCoupon(coupon);
+        localStorage.setItem('kfb_coupon', JSON.stringify(coupon));
+        showToast('Promo code "KIDSBD10" applied! 10% OFF', 'success');
+        return true;
+      }
+      showToast('Unable to validate promo code', 'error');
+      return false;
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    try {
+      localStorage.removeItem('kfb_coupon');
+    } catch (e) {}
+    showToast('Promo code removed', 'info');
+  };
+
+  // Additional Modals
+  const [isAdminOpen, setIsAdminOpen] = useState(() => {
+    return window.location.hash === '#admin';
+  });
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isTrackingOpen, setIsTrackingOpen] = useState(false);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#admin') {
+        setIsAdminOpen(true);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   // UI state
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -239,8 +334,10 @@ export const StoreProvider = ({ children }) => {
   const isFreeShipping = cartSubtotal >= FREE_SHIPPING_THRESHOLD;
   const shippingFee = cart.length === 0 ? 0 : isFreeShipping ? 0 : (deliveryRegion === 'dhaka' ? 60 : 120);
 
-  const discountAmount = 0;
-  const grandTotal = Math.max(0, cartSubtotal + shippingFee);
+  const discountAmount = appliedCoupon
+    ? Math.round((cartSubtotal * (Number(appliedCoupon.discountPercent) || 0)) / 100)
+    : 0;
+  const grandTotal = Math.max(0, cartSubtotal - discountAmount + shippingFee);
 
   // Currency formatting
   const formatPrice = (amountInBDT) => {
@@ -303,8 +400,20 @@ export const StoreProvider = ({ children }) => {
         shippingFee,
         isFreeShipping,
         FREE_SHIPPING_THRESHOLD,
+        appliedCoupon,
+        applyCoupon,
+        removeCoupon,
         discountAmount,
         grandTotal,
+        language,
+        setLanguage,
+        t,
+        isAdminOpen,
+        setIsAdminOpen,
+        isContactOpen,
+        setIsContactOpen,
+        isTrackingOpen,
+        setIsTrackingOpen,
         deliveryRegion,
         setDeliveryRegion,
         wishlist,

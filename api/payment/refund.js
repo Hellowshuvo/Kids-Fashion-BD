@@ -1,6 +1,4 @@
-// Vercel Serverless Function for Refunding UddoktaPay / Paymently Payment
 const DEFAULT_BASE_URL = 'https://kidsfashionbd.paymently.io/api';
-const DEFAULT_API_KEY = 'lbK81QaiOQsiAsoJ9zA5cnPffFZxncpekiF3PPZK';
 
 async function getParsedBody(req) {
   if (req.body) {
@@ -79,7 +77,14 @@ export default async function handler(req, res) {
     }
 
     const baseUrl = (process.env.PAYMENTLY_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, '');
-    const apiKey = process.env.PAYMENTLY_API_KEY || DEFAULT_API_KEY;
+    const apiKey = process.env.PAYMENTLY_API_KEY;
+
+    if (!apiKey) {
+      return sendResponse(res, 500, {
+        status: false,
+        message: 'Server configuration error: PAYMENTLY_API_KEY environment variable is not configured.',
+      });
+    }
 
     const endpoint = baseUrl.endsWith('/api')
       ? `${baseUrl}/refund-payment`

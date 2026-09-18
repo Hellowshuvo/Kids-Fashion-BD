@@ -23,12 +23,25 @@ export const ChatWidget = () => {
     ]);
     setInputVal('');
 
+    // Persist to backend so store owner never loses customer inquiries
+    try {
+      fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Live Chat Visitor',
+          subject: 'Live Concierge Chat',
+          message: userText,
+        }),
+      }).catch(() => {});
+    } catch (e) {}
+
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,
         {
           sender: 'bot',
-          text: 'Thank you! For priority concierge or instant styling assistance in Narayanganj & Dhaka, connect directly with our studio at +880 1842-533335.',
+          text: 'Thank you! For priority concierge or instant styling assistance in Narayanganj & Dhaka, connect directly with our studio at +880 1842-533335 or WhatsApp.',
           time: 'Just now',
         },
       ]);

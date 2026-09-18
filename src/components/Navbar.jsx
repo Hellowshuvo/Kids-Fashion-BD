@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
-import { Search, ShoppingBag, Heart, Menu, X, Sun, Moon } from 'lucide-react';
+import { Search, ShoppingBag, Heart, Menu, X, Sun, Moon, Truck, ShieldCheck, MessageSquare } from 'lucide-react';
 
 export const Navbar = () => {
   const {
@@ -15,6 +15,12 @@ export const Navbar = () => {
     theme,
     setTheme,
     toggleTheme,
+    language,
+    setLanguage,
+    t,
+    setIsTrackingOpen,
+    setIsContactOpen,
+    setIsAdminOpen,
   } = useStore();
 
   const isDark = theme === 'dark';
@@ -105,9 +111,40 @@ export const Navbar = () => {
             </div>
           </div>
 
-          {/* Right Actions: Theme Switcher, Search, Wishlist, Cart */}
+          {/* Right Actions: Language, Track, Theme, Search, Wishlist, Bag, Admin */}
           <div className="flex items-center gap-1 sm:gap-2.5 text-xs">
             
+            {/* BN / EN Language Switcher */}
+            <button
+              type="button"
+              onClick={() => setLanguage(language === 'bn' ? 'en' : 'bn')}
+              title="Toggle Language (বাংলা / English)"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 text-[11px] font-bold font-mono transition-colors cursor-pointer hover:border-[#C5A059]"
+            >
+              <span className={language === 'bn' ? 'text-[#C5A059]' : 'text-neutral-400'}>বাং</span>
+              <span className="text-neutral-300 dark:text-neutral-700">|</span>
+              <span className={language === 'en' ? 'text-[#C5A059]' : 'text-neutral-400'}>EN</span>
+            </button>
+
+            {/* Track Order Button */}
+            <button
+              onClick={() => setIsTrackingOpen(true)}
+              title="Track Order"
+              className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-full border border-neutral-300 dark:border-neutral-700 hover:border-[#C5A059] text-[11px] font-bold text-neutral-700 dark:text-neutral-300 transition-colors cursor-pointer"
+            >
+              <Truck className="w-3 h-3 text-[#C5A059]" />
+              <span>{language === 'bn' ? 'ট্র্যাক' : 'Track'}</span>
+            </button>
+
+            {/* Contact Studio Button */}
+            <button
+              onClick={() => setIsContactOpen(true)}
+              title="Contact Studio"
+              className="hidden xl:flex items-center gap-1 px-2.5 py-1 rounded-full border border-neutral-300 dark:border-neutral-700 hover:border-[#C5A059] text-[11px] font-bold text-neutral-700 dark:text-neutral-300 transition-colors cursor-pointer"
+            >
+              <span>{language === 'bn' ? 'যোগাযোগ' : 'Contact'}</span>
+            </button>
+
             {/* Desktop Theme Switcher (White / Black) */}
             <div
               className={`hidden sm:flex items-center p-0.5 sm:p-1 rounded-full border shadow-inner transition-colors duration-200 ${
@@ -308,17 +345,55 @@ export const Navbar = () => {
               </div>
             </div>
 
+            {/* Quick Actions: Track, Contact, Admin */}
+            <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setIsTrackingOpen(true);
+                }}
+                className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-neutral-300 dark:border-neutral-700 text-xs font-bold text-neutral-800 dark:text-neutral-200 hover:border-[#C5A059] transition-colors"
+              >
+                <Truck className="w-3.5 h-3.5 text-[#C5A059]" />
+                <span>{language === 'bn' ? 'অর্ডার ট্র্যাক' : 'Track Order'}</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setIsContactOpen(true);
+                }}
+                className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-neutral-300 dark:border-neutral-700 text-xs font-bold text-neutral-800 dark:text-neutral-200 hover:border-[#C5A059] transition-colors"
+              >
+                <MessageSquare className="w-3.5 h-3.5 text-[#C5A059]" />
+                <span>{language === 'bn' ? 'যোগাযোগ' : 'Contact'}</span>
+              </button>
+            </div>
+
             {/* Direct Studio Call / WhatsApp Order */}
-            <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800 space-y-2">
+            <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800 space-y-2">
               <a
                 href="tel:+8801842533335"
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-white text-xs font-bold uppercase tracking-wider hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
               >
                 <span>📞 Call Studio: 01842-533335</span>
               </a>
-              <p className="text-[10px] text-center text-neutral-500">
-                Katherpool Shibu Market, Narayanganj · 24-48h Dispatch
-              </p>
+
+              <div className="flex items-center justify-between pt-1">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setIsAdminOpen(true);
+                  }}
+                  className="text-[11px] font-bold text-[#C5A059] hover:underline flex items-center gap-1"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Admin Portal</span>
+                </button>
+                <p className="text-[10px] text-neutral-500">
+                  Narayanganj Studio
+                </p>
+              </div>
             </div>
           </div>
         )}

@@ -3,7 +3,7 @@ import { useStore } from '../context/StoreContext';
 import { MapPin, Phone, Mail, ArrowUp } from 'lucide-react';
 
 export const Footer = () => {
-  const { setSelectedCategory, theme } = useStore();
+  const { setSelectedCategory, theme, setIsAdminOpen, setIsContactOpen, setIsTrackingOpen } = useStore();
   const isDark = theme === 'dark';
 
   const handleCategory = (cat) => {
@@ -117,6 +117,22 @@ export const Footer = () => {
               <li><span>Narayanganj & Dhaka Dispatch: 24-48h</span></li>
               <li><span>Nationwide Courier: 3-5 Days</span></li>
               <li><span>7-Day Hassle-Free Exchange</span></li>
+              <li>
+                <button
+                  onClick={() => setIsTrackingOpen(true)}
+                  className="hover:text-[#C5A059] transition-colors cursor-pointer text-left font-semibold flex items-center gap-1 text-neutral-800 dark:text-neutral-200"
+                >
+                  <span>🔍 Track Order Status</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setIsContactOpen(true)}
+                  className="hover:text-[#C5A059] transition-colors cursor-pointer text-left font-semibold flex items-center gap-1 text-neutral-800 dark:text-neutral-200"
+                >
+                  <span>✉️ Contact Studio Support</span>
+                </button>
+              </li>
             </ul>
 
             {/* Payment Methods */}
@@ -164,6 +180,12 @@ export const Footer = () => {
             <a href="#" className="hover:text-black dark:hover:text-white transition-colors cursor-pointer">Privacy Policy</a>
             <a href="#" className="hover:text-black dark:hover:text-white transition-colors cursor-pointer">Terms of Service</a>
             <a href="#" className="hover:text-black dark:hover:text-white transition-colors cursor-pointer">Shipping & Returns</a>
+            <button
+              onClick={() => setIsAdminOpen(true)}
+              className="hover:text-[#C5A059] transition-colors cursor-pointer text-[11px] font-bold text-neutral-600 dark:text-neutral-400"
+            >
+              🔒 Admin Portal
+            </button>
           </div>
 
           <div className="flex items-center gap-4">

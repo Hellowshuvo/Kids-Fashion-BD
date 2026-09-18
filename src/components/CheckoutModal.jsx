@@ -21,6 +21,9 @@ export const CheckoutModal = () => {
     cart,
     cartSubtotal,
     discountAmount,
+    appliedCoupon,
+    applyCoupon,
+    removeCoupon,
     shippingFee,
     grandTotal,
     formatPrice,
@@ -33,6 +36,8 @@ export const CheckoutModal = () => {
 
   const [step, setStep] = useState(1); // 1: Delivery info, 2: Payment & Review
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [promoInput, setPromoInput] = useState('');
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
 
   // Form Fields
   const [formData, setFormData] = useState({
@@ -102,48 +107,53 @@ export const CheckoutModal = () => {
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
+    const cleanPhone = formData.phone.replace(/[^0-9]/g, '');
+    const customerEmail = formData.email?.trim() || `${cleanPhone || 'customer'}@kidsfashionbd.com`;
+    const orderId = 'KB-' + Math.floor(100000 + Math.random() * 900000);
 
-    // 1. ONLINE PAYMENT VIA UDDOKTAPAY / PAYMENTLY GATEWAY
+    // 1. ONLINE PAYMENT VIA UDDOKTAPAY
     if (formData.paymentMethod === 'online') {
       setIsSubmitting(true);
-      const cleanPhone = formData.phone.replace(/[^0-9]/g, '');
-      const customerEmail = formData.email?.trim() || `${cleanPhone || 'customer'}@kidsfashionbd.com`;
-      const orderId = 'KB-' + Math.floor(100000 + Math.random() * 900000);
-
-      const pendingOrder = {
+      const pendingOrderPayload = {
         orderId,
-        date: new Date().toLocaleDateString('en-GB', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        }),
-        customer: {
-          name: formData.fullName,
-          phone: formData.phone,
-          email: formData.email || 'N/A',
-          division: formData.division,
-          cityArea: formData.cityArea,
-          address: formData.streetAddress,
-          notes: formData.notes,
-        },
-        payment: {
-          method: 'Online Payment (UddoktaPay)',
-          status: 'Payment Pending Confirmation',
-        },
-        items: [...cart],
+        fullName: formData.fullName,
+        phone: formData.phone,
+        email: formData.email || null,
+        division: formData.division,
+        cityArea: formData.cityArea,
+        streetAddress: formData.streetAddress,
+        notes: formData.notes,
+        paymentMethod: 'UddoktaPay Online',
+        paymentStatus: 'Pending Online Verification',
+        items: cart,
         subtotal: cartSubtotal,
-        discount: 0,
-        promoCode: null,
+        discount: discountAmount,
+        promoCode: appliedCoupon?.code || null,
         shipping: shippingFee,
         total: grandTotal,
-        estimatedDelivery:
-          deliveryRegion === 'dhaka'
-            ? 'Within 24 to 48 Hours'
-            : 'Within 3 to 5 Business Days',
       };
 
       try {
-        localStorage.setItem('kfb_pending_order', JSON.stringify(pendingOrder));
+        // Save order in backend SQLite
+        await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(pendingOrderPayload),
+        });
+
+        // Backup in localStorage
+        localStorage.setItem('kfb_pending_order', JSON.stringify({
+          ...pendingOrderPayload,
+          customer: {
+            name: formData.fullName,
+            phone: formData.phone,
+            email: formData.email,
+            division: formData.division,
+            cityArea: formData.cityArea,
+            address: formData.streetAddress,
+            notes: formData.notes,
+          }
+        }));
 
         const origin = window.location.origin;
         const res = await fetch('/api/payment/create-charge', {
@@ -169,7 +179,7 @@ export const CheckoutModal = () => {
             const errJson = JSON.parse(errText);
             errMsg = errJson.message || errMsg;
           } catch (e) {
-            errMsg = errText || `Server responded with status ${res.status}`;
+            errMsg = errText || `Server error: ${res.status}`;
           }
           showToast(errMsg, 'error');
           setIsSubmitting(false);
@@ -184,11 +194,11 @@ export const CheckoutModal = () => {
           window.location.href = data.payment_url;
           return;
         } else {
-          showToast(data.message || 'Could not initiate online payment gateway', 'error');
+          showToast(data.message || 'Could not initiate payment gateway', 'error');
           setIsSubmitting(false);
         }
       } catch (err) {
-        showToast(err.message || 'Server connection error. Please try again.', 'error');
+        showToast(err.message || 'Connection error. Please try again.', 'error');
         setIsSubmitting(false);
       }
       return;
@@ -202,62 +212,60 @@ export const CheckoutModal = () => {
       }
     }
 
-    // 3. CASH ON DELIVERY OR MANUAL
+    // 3. CASH ON DELIVERY OR MANUAL BKASH
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    try {
+      const orderPayload = {
+        orderId,
+        fullName: formData.fullName,
+        phone: formData.phone,
+        email: formData.email || null,
+        division: formData.division,
+        cityArea: formData.cityArea,
+        streetAddress: formData.streetAddress,
+        notes: formData.notes,
+        paymentMethod: formData.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : `bKash Manual (TrxID: ${formData.trxId})`,
+        paymentStatus: formData.paymentMethod === 'cod' ? 'Payment Due upon Delivery' : 'Paid (Manual TrxID Submitted)',
+        trxId: formData.trxId || null,
+        items: cart,
+        subtotal: cartSubtotal,
+        discount: discountAmount,
+        promoCode: appliedCoupon?.code || null,
+        shipping: shippingFee,
+        total: grandTotal,
+      };
+
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderPayload),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.status) {
+        showToast(data.message || 'Failed to record order. Please try again.', 'error');
+        setIsSubmitting(false);
+        return;
+      }
+
       try {
         confetti({
           particleCount: 80,
           spread: 60,
           origin: { y: 0.6 },
         });
-      } catch (err) {
-        // Ignored if confetti fails
-      }
+      } catch (err) {}
 
-      const generatedOrder = {
-        orderId: 'KB-' + Math.floor(100000 + Math.random() * 900000),
-        date: new Date().toLocaleDateString('en-GB', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        }),
-        customer: {
-          name: formData.fullName,
-          phone: formData.phone,
-          email: formData.email || 'N/A',
-          division: formData.division,
-          cityArea: formData.cityArea,
-          address: formData.streetAddress,
-          notes: formData.notes,
-        },
-        payment: {
-          method:
-            formData.paymentMethod === 'cod'
-              ? 'Cash on Delivery (COD)'
-              : formData.paymentMethod === 'bkash'
-              ? `bKash / Nagad Manual (TrxID: ${formData.trxId})`
-              : 'Credit / Debit Card',
-          status: formData.paymentMethod === 'cod' ? 'Payment Due upon Delivery' : 'Paid',
-        },
-        items: [...cart],
-        subtotal: cartSubtotal,
-        discount: 0,
-        promoCode: null,
-        shipping: shippingFee,
-        total: grandTotal,
-        estimatedDelivery:
-          deliveryRegion === 'dhaka'
-            ? 'Within 24 to 48 Hours'
-            : 'Within 3 to 5 Business Days',
-      };
-
-      setLastOrder(generatedOrder);
+      setLastOrder(data.order);
       clearCart();
       setIsSubmitting(false);
       setIsCheckoutOpen(false);
-    }, 1000);
+      showToast('Order placed successfully! Saved in database.', 'success');
+    } catch (err) {
+      showToast('Server connection error. Please try again.', 'error');
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -719,6 +727,54 @@ export const CheckoutModal = () => {
                 </div>
               )}
 
+              {/* Promo / Discount Code Input Box */}
+              <div className="bg-neutral-50 dark:bg-[#09090B] p-3.5 rounded-2xl border border-neutral-200 dark:border-[#27272A] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Have a Promo / Coupon Code?</span>
+                  {appliedCoupon && (
+                    <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-full font-mono">
+                      {appliedCoupon.code} ({appliedCoupon.discountPercent}% OFF)
+                    </span>
+                  )}
+                </div>
+
+                {appliedCoupon ? (
+                  <div className="flex items-center justify-between text-xs bg-emerald-50 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300">
+                    <span>Discount applied: <strong>- {formatPrice(discountAmount)}</strong></span>
+                    <button
+                      type="button"
+                      onClick={removeCoupon}
+                      className="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="e.g. KIDSBD10"
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                      className="flex-1 bg-white dark:bg-[#1E1E22] border border-neutral-300 dark:border-[#27272A] rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white uppercase font-mono tracking-wider focus:outline-none focus:border-[#C5A059]"
+                    />
+                    <button
+                      type="button"
+                      disabled={isApplyingPromo || !promoInput.trim()}
+                      onClick={async () => {
+                        setIsApplyingPromo(true);
+                        const success = await applyCoupon(promoInput);
+                        if (success) setPromoInput('');
+                        setIsApplyingPromo(false);
+                      }}
+                      className="bg-neutral-900 text-white dark:bg-[#F5EFEB] dark:text-black text-xs font-bold px-4 py-2 rounded-xl uppercase tracking-wider hover:opacity-90 disabled:opacity-50 cursor-pointer"
+                    >
+                      {isApplyingPromo ? 'Applying...' : 'Apply'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {/* Order Summary Recap */}
               <div className="bg-neutral-50 dark:bg-[#09090B] p-4 rounded-2xl border border-neutral-200 dark:border-[#27272A] space-y-2 text-xs">
                 <div className="font-semibold text-neutral-900 dark:text-white mb-1 uppercase tracking-wider text-[11px] font-mono">Order Summary</div>
@@ -742,6 +798,12 @@ export const CheckoutModal = () => {
                   <span>Delivery:</span>
                   <span className="text-neutral-900 dark:text-neutral-200 font-mono">{shippingFee === 0 ? 'FREE' : formatPrice(shippingFee)}</span>
                 </div>
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
+                    <span>Discount ({appliedCoupon?.code}):</span>
+                    <span className="font-mono">- {formatPrice(discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm font-bold text-neutral-900 dark:text-white pt-2 border-t border-neutral-200 dark:border-[#27272A]">
                   <span className="uppercase tracking-wider text-xs">Total Amount:</span>
                   <span className="font-mono text-base text-neutral-900 dark:text-[#F5EFEB]">{formatPrice(grandTotal)}</span>
