@@ -68,8 +68,8 @@ export function loginAdmin(username, password) {
     };
   }
 
-  // Use timingSafeEqual to avoid timing attacks
-  const usernameMatch = username === envUsername;
+  // Case-insensitive username match with trimming
+  const usernameMatch = (username || '').trim().toLowerCase() === (envUsername || '').trim().toLowerCase();
   const passwordBuffer = Buffer.from(password || '');
   const envPasswordBuffer = Buffer.from(envPassword);
 

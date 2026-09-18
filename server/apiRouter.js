@@ -350,7 +350,7 @@ export async function handleApiRequest(req, res, env = {}) {
 
     // POST /api/admin/login
     if (pathname === '/api/admin/login' && method === 'POST') {
-      const limit = checkRateLimit('admin_login', ip, 15 * 60 * 1000, 5);
+      const limit = checkRateLimit('admin_login', ip, 15 * 60 * 1000, 10);
       if (!limit.allowed) {
         sendJson(res, 429, { status: false, message: 'Too many failed login attempts. Account temporarily locked for 15 minutes.' });
         return true;
