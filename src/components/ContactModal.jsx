@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { X, Send, Phone, Mail, MapPin, CheckCircle2, MessageSquare, Loader2 } from 'lucide-react';
+import { X, Send, Phone, Mail, CheckCircle2, MessageSquare, Loader2 } from 'lucide-react';
 
 export const ContactModal = () => {
   const { isContactOpen, setIsContactOpen, showToast, theme } = useStore();

@@ -33,7 +33,7 @@ export function checkRateLimit(limiterName, ip, windowMs, maxRequests) {
 }
 
 // Clean up stale rate limits every 10 minutes
-setInterval(() => {
+const cleanupInterval = setInterval(() => {
   const now = Date.now();
   for (const store of rateLimitStores.values()) {
     for (const [key, entry] of store.entries()) {
@@ -43,6 +43,7 @@ setInterval(() => {
     }
   }
 }, 10 * 60 * 1000);
+if (cleanupInterval.unref) cleanupInterval.unref();
 
 export function getClientIp(req) {
   const forwarded = req.headers['x-forwarded-for'];

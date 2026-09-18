@@ -381,10 +381,11 @@ export function performBackup() {
 }
 
 // Schedule automated daily backup (every 24 hours)
-setInterval(() => {
+const backupInterval = setInterval(() => {
   try {
     performBackup();
   } catch (e) {
     console.error('Automated backup error:', e);
   }
 }, 24 * 60 * 60 * 1000);
+if (backupInterval.unref) backupInterval.unref();

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { X, Search, PackageCheck, Truck, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Search, Truck, AlertCircle, Loader2 } from 'lucide-react';
 
 export const OrderTrackingModal = () => {
   const { isTrackingOpen, setIsTrackingOpen, formatPrice, showToast, theme } = useStore();

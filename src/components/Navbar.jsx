@@ -17,7 +17,6 @@ export const Navbar = () => {
     toggleTheme,
     language,
     setLanguage,
-    t,
     setIsTrackingOpen,
     setIsContactOpen,
     setIsAdminOpen,

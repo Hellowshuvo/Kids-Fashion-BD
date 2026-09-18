@@ -13,6 +13,13 @@ lerna-debug.log*
 .env.*.local
 *.env
 
+# SQLite Database & Backups
+data/*.sqlite
+data/backups/
+*.sqlite
+*.db
+scratch/
+
 node_modules
 dist
 dist-ssr
