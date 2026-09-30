@@ -46,14 +46,14 @@ export const ProductCard = ({ product, style }) => {
           src={product.images[0]}
           alt={product.name}
           loading="lazy"
-          className={`w-full h-full object-cover object-center transition-all duration-700 ease-out group-hover/image:scale-105 brightness-95 ${product.images[1] ? 'group-hover/image:opacity-0' : ''}`}
+          className={`w-full h-full object-cover object-center transition-all duration-500 ease-out group-hover:scale-105 brightness-95 ${product.images[1] ? 'group-hover:opacity-0' : ''}`}
         />
         {product.images[1] && (
           <img
             src={product.images[1]}
             alt={`${product.name} alternate view`}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover/image:opacity-100 group-hover/image:scale-105 transition-all duration-700 ease-out brightness-95"
+            className="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-out brightness-95"
           />
         )}
 

@@ -1,13 +1,10 @@
 import React from 'react';
 import { StoreProvider, useStore } from './context/StoreContext';
-import { AnnouncementBar } from './components/AnnouncementBar';
 import { Navbar } from './components/Navbar';
-import { Hero } from './components/Hero';
 import { CategoryBar } from './components/CategoryBar';
 import { ProductGrid } from './components/ProductGrid';
 import { BrandManifesto } from './components/BrandManifesto';
 import { Testimonials } from './components/Testimonials';
-import { AtelierShowcase } from './components/AtelierShowcase';
 import { Footer } from './components/Footer';
 import { ProductModal } from './components/ProductModal';
 import { CartDrawer } from './components/CartDrawer';
@@ -45,20 +42,16 @@ const MainLayout = () => {
     <div className={`min-h-screen flex flex-col selection:bg-[#C5A059] selection:text-black transition-colors duration-200 ${
       isDark ? 'bg-[#09090B] text-white' : 'bg-white text-neutral-900'
     }`}>
-      {/* Top Delivery & Promo Announcement */}
-      <AnnouncementBar />
 
       {/* Main Navigation */}
       <Navbar />
 
       {/* Content with bottom clearance for mobile sticky bar */}
       <main className="flex-1 pb-20 lg:pb-0">
-        <Hero />
         <CategoryBar />
         <ProductGrid />
         <BrandManifesto />
         <Testimonials />
-        <AtelierShowcase />
       </main>
 
       {/* Minimalist Footer with clearance */}
