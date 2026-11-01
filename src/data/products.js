@@ -123,7 +123,7 @@ export const PRODUCTS = [
       { name: "Navy", hex: "#172554", class: "bg-[#172554]" },
     ],
     images: [
-      "/products/spiderman-navy.jpg",
+      "/products/spiderman-navy-back.jpg",
     ],
     description: "A navy short-sleeve tee set for ages 1-12: small Spider-Man print on the front, big Spider-Man print on the back, paired with all-over printed long pants.",
     fabric: "Soft breathable cotton",
@@ -147,7 +147,7 @@ export const PRODUCTS = [
       { name: "Yellow", hex: "#FACC15", class: "bg-[#FACC15]" },
     ],
     images: [
-      "/products/new-york-yellow.jpg",
+      "/products/new-york-yellow-back.jpg",
     ],
     description: "A bright yellow short-sleeve tee set for ages 1-12: small New York print on the front, big New York print on the back, paired with all-over printed long pants.",
     fabric: "Soft breathable cotton",
@@ -171,7 +171,7 @@ export const PRODUCTS = [
       { name: "Red", hex: "#DC2626", class: "bg-[#DC2626]" },
     ],
     images: [
-      "/products/drift-racing-red.jpg",
+      "/products/drift-racing-red-back.jpg",
     ],
     description: "A red short-sleeve Drift Racing tee set for ages 1-12: small blue race-car print on the front, big race-car print on the back, paired with all-over Drift Racing printed long pants.",
     fabric: "Soft breathable cotton",
@@ -195,7 +195,7 @@ export const PRODUCTS = [
       { name: "Teal", hex: "#0F766E", class: "bg-[#0F766E]" },
     ],
     images: [
-      "/products/shell-club-teal.jpg",
+      "/products/shell-club-teal-back.jpg",
     ],
     description: "A teal short-sleeve Shell Club tee set for ages 1-12: small shell and starfish print on the front, big shell and starfish print on the back, paired with all-over Shell Club printed long pants in the exact teal.",
     fabric: "Soft breathable cotton",
@@ -219,7 +219,7 @@ export const PRODUCTS = [
       { name: "Red", hex: "#DC2626", class: "bg-[#DC2626]" },
     ],
     images: [
-      "/products/roblox-red.jpg",
+      "/products/roblox-red-back.jpg",
     ],
     description: "A red short-sleeve Roblox tee set for ages 1-12: small Roblox character print on the front, big Roblox print on the back, paired with all-over Roblox printed long pants.",
     fabric: "Soft breathable cotton",
@@ -267,7 +267,7 @@ export const PRODUCTS = [
       { name: "Light Pink", hex: "#F9A8D4", class: "bg-[#F9A8D4]" },
     ],
     images: [
-      "/products/la-dolce-vita-pink.jpg",
+      "/products/la-dolce-vita-pink-back.jpg",
     ],
     description: "A light pink short-sleeve La Dolce Vita tee set for ages 1-12: small lemon print on the front, big lemon print on the back, paired with black and pale-pink checkered short pants with a black drawstring. The only short-pant set in this drop.",
     fabric: "Soft breathable cotton",
