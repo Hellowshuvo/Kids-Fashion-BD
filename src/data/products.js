@@ -243,7 +243,7 @@ export const PRODUCTS = [
       { name: "Maroon", hex: "#7F1D1D", class: "bg-[#7F1D1D]" },
     ],
     images: [
-      "/products/jurassic-world-maroon.jpg",
+      "/products/jurassic-world-maroon-back.jpg",
     ],
     description: "A maroon short-sleeve Jurassic World tee set for ages 1-12: small chest print on the front, big upright Jurassic World print on the back, paired with all-over dino printed long pants.",
     fabric: "Soft breathable cotton",
